@@ -73,4 +73,12 @@
         android:background="@android:color/transparent"
         android:onClick="PopSendMenu"/>
 
+    <ImageButton
+        android:id="@+id/testBD"
+        android:src="@drawable/ic_action_person"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/sendButton"
+        android:onClick="testDB"/>
+
 </RelativeLayout>
