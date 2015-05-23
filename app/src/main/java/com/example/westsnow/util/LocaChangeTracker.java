@@ -41,8 +41,8 @@ public class LocaChangeTracker extends CurLocaTracker{
         m_LastLocation = locaTracker.m_LastLocation;
         m_LastMarker = locaTracker.m_LastMarker;
 
-        m_startLocation = locaTracker.m_startLocation;
-        m_endLocation = locaTracker.m_endLocation;
+        //m_startLocation = locaTracker.m_startLocation;
+        //m_endLocation = locaTracker.m_endLocation;
         try{
             if ((m_map == null)) {
                 throw new SnailException(SnailException.EX_DESP_MapNotExist);

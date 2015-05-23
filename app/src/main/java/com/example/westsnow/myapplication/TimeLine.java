@@ -112,7 +112,7 @@ public class TimeLine extends ListActivity {
                     JSONArray moments = json.getJSONArray(TAG_USER);
 
                     // looping through All Products
-                    for (int i = 0; i < moments.length(); i++) {
+                    for (int i = moments.length()-1; i >= 0; i--) {
                         JSONObject c = moments.getJSONObject(i);
                         // Storing each json item in variable
                         String context = c.getString("context");

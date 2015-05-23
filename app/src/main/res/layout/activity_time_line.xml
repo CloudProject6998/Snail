@@ -1,18 +1,27 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
     <!-- Main ListView
          Always give id value as list(@android:id/list)
     -->
 
-    <TextView android:text="history moments" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <TextView
+        android:text="Name"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="56dp"
+        android:textSize="45dp"
+        android:background="@drawable/headline"
+        />
 
     <ListView
         android:id="@android:id/list"
+        android:background="@drawable/bgline"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 
 
-</RelativeLayout>
+    </LinearLayout>
