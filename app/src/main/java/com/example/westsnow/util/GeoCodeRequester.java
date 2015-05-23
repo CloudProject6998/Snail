@@ -57,5 +57,31 @@ public class GeoCodeRequester {
         return res;
     }
 
+    public double[] getStartEndLocation(Context context, String startPosName, String endPosName){
+        LatLng startLoca = getGeoLocation(context, startPosName);
+        LatLng endLoca = getGeoLocation(context, endPosName);
+        sendMessage2Listener(startLoca, endLoca);
+        double startLat = startLoca.latitude;
+        double startLng = startLoca.longitude;
+        double endLat = endLoca.latitude;
+        double endLng = endLoca.longitude;
+
+        double[] startEndLoc = new double[4];
+        startEndLoc[0] = startLat;
+        startEndLoc[1] = startLng;
+        startEndLoc[2] = endLat;
+        startEndLoc[3] = endLng;
+
+        return startEndLoc;
+
+    }
+
+    protected void sendMessage2Listener(LatLng startLoca, LatLng endLoca){
+
+        LocaChangeTracker.m_startLocation = startLoca;
+        LocaChangeTracker.m_endLocation = endLoca;
+    }
+
+
 
 }

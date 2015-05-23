@@ -33,6 +33,7 @@ public class LocaChangeTracker extends CurLocaTracker{
 
     public Location m_LastLocation;
     public LocationManager m_manager;
+    public static List<LatLng> m_routes = new ArrayList<LatLng>();
 
 
     public LocaChangeTracker(CurLocaTracker locaTracker){
@@ -42,7 +43,6 @@ public class LocaChangeTracker extends CurLocaTracker{
 
         m_startLocation = locaTracker.m_startLocation;
         m_endLocation = locaTracker.m_endLocation;
-
         try{
             if ((m_map == null)) {
                 throw new SnailException(SnailException.EX_DESP_MapNotExist);
@@ -59,6 +59,8 @@ public class LocaChangeTracker extends CurLocaTracker{
                 if (location == null) {
                     throw new SnailException(SnailException.EX_DESP_LocationNotExist); // ??
                 }
+                LatLng loc = new LatLng(location.getLatitude(),location.getLongitude());
+                m_routes.add(loc);
                 if(m_endLocation != null){
 
                     System.out.println("[Listener Get End Pos]"+m_endLocation.latitude+" ,"+m_endLocation.longitude);

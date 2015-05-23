@@ -22,7 +22,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Looper;
 
+import com.example.westsnow.util.LocaChangeTracker;
 import com.example.westsnow.util.SnailException;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -56,8 +58,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void login(View view) {
 
+        LocaChangeTracker.m_routes = new ArrayList<LatLng>();
         new AttemptLogin().execute();
-
 
 //        if (signInSucceed()) {
 //            Toast.makeText(MainActivity.this, "Login Successful ...", Toast.LENGTH_SHORT).show();

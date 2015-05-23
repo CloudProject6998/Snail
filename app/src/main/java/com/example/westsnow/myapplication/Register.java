@@ -1,5 +1,8 @@
 package com.example.westsnow.myapplication;
 
+import com.example.westsnow.util.*;
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -36,6 +39,7 @@ public class Register extends ActionBarActivity {
 
     public void register(View view){
         //try to register to server
+        LocaChangeTracker.m_routes = new ArrayList<LatLng>();
         new RegisterAttempt().execute();
 
 //        if( registerSucceed() ) {

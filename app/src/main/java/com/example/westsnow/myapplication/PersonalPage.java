@@ -30,6 +30,7 @@ public class PersonalPage extends CurLocaTracker {
     private String momentSent = null;
     private final android.os.Handler handle = new Handler();
     private Polyline m_polyline = null;
+    public int m_drawLineType = 1; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
     public Location momentLoc ;
 
@@ -38,6 +39,7 @@ public class PersonalPage extends CurLocaTracker {
                 SendMoment.class);
         // sending pid to next activity
         in.putExtra("username", username);
+
         getCurLocation();
         momentLoc = m_LastLocation;
         in.putExtra("curlat",m_LastLocation.getLatitude());
@@ -51,8 +53,8 @@ public class PersonalPage extends CurLocaTracker {
     public void GetRouteValue(View view) {
         // Update Location in time
         startTracker();
-
         getCurLocation();
+
         final EditText startText = (EditText)findViewById(R.id.start);
         final EditText endText = (EditText)findViewById(R.id.des);
 
@@ -79,7 +81,7 @@ public class PersonalPage extends CurLocaTracker {
             @Override
             public void run() {
                 try {
-                    final List<List<LatLng>> routes = util.getGoogleRoutes(startPosName, endPosName);
+                    final List<LatLng> routes = util.getGoogleRoutes(startPosName, endPosName);
                     if(routes == null){
                         throw new SnailException(SnailException.EX_DESP_NoInternet);
                     }
@@ -87,20 +89,12 @@ public class PersonalPage extends CurLocaTracker {
                     handle.post(new Runnable() {
                         @Override
                         public void run() {
-                            if(m_polyline != null)
-                                m_polyline.remove();
-                            m_polyline  = util.drawGoogleRoutes(routes, m_map);
+                            util.drawGoogleRoutes(routes,m_map,m_drawLineType);
                         }
                     });
-                    GeoCodeRequester codeRequester = GeoCodeRequester.getInstance();
-                    LatLng startLoca = codeRequester.getGeoLocation(context, startPosName);
-                    LatLng endLoca = codeRequester.getGeoLocation(context, endPosName);
-                    sendMessage2Listener(startLoca, endLoca);
-                    final double startLat = startLoca.latitude;
-                    final double startLng = startLoca.longitude;
-                    final double endLat = endLoca.latitude;
-                    final double endLng = endLoca.longitude;
+
                     //Todo 3: get startloc, endloc
+                    GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName);
 
                 }catch(JSONException e){
                     e.printStackTrace();
@@ -141,12 +135,7 @@ public class PersonalPage extends CurLocaTracker {
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        GoogleMap map = getPrevMap();
-        //if(map == null)
-            m_map = mapFragment.getMap();
-        //else
-            //m_map = map;
+        m_map = mapFragment.getMap();
 
         buildGoogleApiClient();
         if ((momentSent != null)){

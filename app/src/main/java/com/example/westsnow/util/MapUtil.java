@@ -35,6 +35,8 @@ import android.graphics.Color;
 public class MapUtil {
     private static MapUtil m_instance = new MapUtil();
     private static String API_KEY  = "AIzaSyCAu_Ff5LC0H17WPavjIhajVl7KXeck9mU";
+    public static Polyline m_polyline = null;
+
 
     public static MapUtil getInstance() {
         if(m_instance == null)
@@ -42,7 +44,7 @@ public class MapUtil {
         return m_instance;
     }
 
-    private HttpResponse post(Map<String, Object> params, String url) {
+    private HttpResponse post(Map<String, Object> params, String url) throws SnailException {
 
         HttpClient client = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
@@ -76,8 +78,9 @@ public class MapUtil {
         } else {
             try {
                 response = client.execute(httpPost);
-            } catch (ClientProtocolException e) {
+            } catch (ClientProtocolException e) { //Todo can not connect internet
                 e.printStackTrace();
+                throw new SnailException(SnailException.EX_DESP_NoInternet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -88,41 +91,47 @@ public class MapUtil {
     private JSONObject getValues(Map<String, Object> params, String url) throws JSONException, SnailException {
         String token = "";
         JSONObject obToken = null;
-        HttpResponse response = post(params, url);
-        if (response != null) {
-            try {
+        try {
+            HttpResponse response = post(params, url);
+            if (response != null) {
+                try {
 
-                token = EntityUtils.toString(response.getEntity());
-                obToken = new JSONObject(token);
-                System.out.println("token route:"+token);
-                response.removeHeaders("operator");
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    token = EntityUtils.toString(response.getEntity());
+                    obToken = new JSONObject(token);
+                    System.out.println("token route:" + token);
+                    response.removeHeaders("operator");
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        }catch(SnailException e){
+            throw e;
         }
         return obToken;
     }
 
-    public List<List<LatLng>> getGoogleRoutes(String origin, String destination) throws SnailException, JSONException {
+    public List<LatLng> getGoogleRoutes(String origin, String destination) throws SnailException, JSONException {
         //String url ="https://maps.googleapis.com/maps/api/directions/json?origin=Queens&destination=Brooklyn&key="+API_KEY;
-        List<List<LatLng>> routes = null;
+        List<LatLng> routes = null;
         try {
             String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + "&mode=driving&key=" + API_KEY;
 
             JSONObject obRoute = getValues(null, url);
+            if(obRoute == null)
+                throw new SnailException(SnailException.EX_DESP_NoInternet); // /?//?/????
             routes = parseGoogleRoute(obRoute);
         }
         catch(JSONException e){
             e.printStackTrace();
+
         }
         catch(SnailException e){
             throw e;
         }
         return routes;
     }
-
     /*
     public Object getAddress(String latlng) {
         String url = "https://maps.google.com/maps/api/geocode/json?latlng="+
@@ -138,9 +147,10 @@ public class MapUtil {
     }
     */
 
-    private List<List<LatLng>> parseGoogleRoute(JSONObject jObject) throws SnailException{
+    private List<LatLng> parseGoogleRoute(JSONObject jObject) throws SnailException{
 
-        List<List<LatLng>> routes = new ArrayList<List<LatLng>>();
+        //List<List<LatLng>> routes = new ArrayList<List<LatLng>>();
+        List<LatLng> routes = new ArrayList<LatLng>();
         JSONArray jRoutes = null;
         JSONArray jLegs = null;
         JSONArray jSteps = null;
@@ -181,9 +191,9 @@ public class MapUtil {
 
                         String polyline = "";
                         polyline = (String)((JSONObject)(jStep).get("polyline")).get("points");
-                        List<LatLng> localist = decodePath(polyline, 10);
+                        List<LatLng> localist = decodePath(polyline, 10,routes);
 
-                        routes.add(localist);
+                        //routes.add(localist);
                     }
                 }
             }
@@ -196,7 +206,7 @@ public class MapUtil {
         return routes;
     }
 
-    private List<LatLng> decodePath(String encoded_polylines, int initial_capacity) {
+    private List<LatLng> decodePath(String encoded_polylines, int initial_capacity,List<LatLng> routes) {
         java.util.List<java.lang.Integer> trucks = new java.util.ArrayList<java.lang.Integer>(initial_capacity);
 
         List<LatLng> points = new ArrayList<LatLng>();
@@ -235,6 +245,7 @@ public class MapUtil {
             double curLng = prevLng / 100000;
             LatLng curLocation = new LatLng(curLat,curLng);
             points.add(curLocation);
+            routes.add(curLocation);
 
             i = i + 2;
             j = j + 2;
@@ -242,28 +253,36 @@ public class MapUtil {
         return points;
     }
 
-    public Polyline drawGoogleRoutes(List<List<LatLng>> routes, GoogleMap map){
+    public void drawGoogleRoutes(List<LatLng> routes, GoogleMap map, int lineType) {
 
         PolylineOptions polyLineOptions = new PolylineOptions();
-        for(List<LatLng> route : routes){
-            polyLineOptions.addAll(route);
-            polyLineOptions.width(10);
-            polyLineOptions.color(Color.RED);
+        if ((lineType == 1) || (lineType == 3)) { //draw friend's line or google line
+            for (LatLng route : routes) {
+                polyLineOptions.add(route);
+                polyLineOptions.width(10);
+                polyLineOptions.color(Color.RED);
+            }
+        }
+        else if(lineType == 2){// draw previous line
+            for (LatLng route : routes) {
+                polyLineOptions.add(route);
+                polyLineOptions.width(10);
+                polyLineOptions.color(Color.BLUE);
+            }
         }
         LatLng startPos = null;
         if(routes.size() > 0){
-            if(routes.get(0).size() > 0) {
-                startPos = routes.get(0).get(0);
+                startPos = routes.get(0);
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos, 13));
             }
-        }
-        return map.addPolyline(polyLineOptions);
+
+        m_polyline = map.addPolyline(polyLineOptions);
+        System.out.println("Start !!!! add poly "+polyLineOptions.toString());
 
     }
 
     public String formatInputLoca(String inputLoca){
         inputLoca =inputLoca.replace(" ","");
-
         return inputLoca;
     }
 }

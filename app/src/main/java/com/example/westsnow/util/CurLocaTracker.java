@@ -47,12 +47,7 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
     public Location m_LastLocation;
     public Marker m_LastMarker;
 
-    public LatLng m_startLocation;
-    public LatLng m_endLocation;
-
     protected String username;
-
-
     public void buildGoogleApiClient(){
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
                 .addConnectionCallbacks(this)
@@ -60,29 +55,42 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
                 .addApi(LocationServices.API)
                 .build();
     }
-
-    public GoogleMap getPrevMap(){
-        if(m_map != null){
-            return m_map;
-        }
-        else
-            return null;
-    }
-
     @Override
     protected void onStart() { // when load mapFragment, call onStart
 
-        System.out.println("[Start !!!!]");
         super.onStart();
+        m_GoogleApiClient.connect();
+
+        MapUtil util = MapUtil.getInstance();
+        if(LocaChangeTracker.m_routes.size() != 0){
+        System.out.println("[Start !!!!]"  + LocaChangeTracker.m_routes);
+            util.drawGoogleRoutes(LocaChangeTracker.m_routes,m_map,2);
+        }
+        else
+            System.out.println("[Start !!!!] null ; null");
+    }
+
+    @Override
+    protected void onResume() {
+        System.out.println("[Resume !!!!]");
+        super.onResume();
         m_GoogleApiClient.connect();
     }
 
     @Override
     public void onConnected(Bundle connectionHint){// be triggered, when call connect()
-
         System.out.println("[Connected !!!!]");
         addCurMarker();
+    }
 
+    @Override
+    protected void onPause() {
+
+        System.out.println("[Paused !!!!]");
+        super.onPause();
+        if (m_GoogleApiClient.isConnected()) {
+            m_GoogleApiClient.disconnect();
+        }
     }
 
     @Override
@@ -143,6 +151,7 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
                     .snippet("Cur location")
                     .position(curLocation));
         }
+        startTracker();
     }
 
     public void addMomentMarker(Location curLoca){
@@ -161,16 +170,6 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
     }
-
-
-    protected void sendMessage2Listener(LatLng startLoca, LatLng endLoca){
-        m_startLocation  = startLoca;
-        m_endLocation = endLoca;
-
-        LocaChangeTracker.m_startLocation = startLoca;
-        LocaChangeTracker.m_endLocation = endLoca;
-    }
-
 
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private static final String TAG_USER = "users";
