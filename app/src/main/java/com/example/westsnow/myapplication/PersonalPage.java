@@ -26,12 +26,12 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class PersonalPage extends CurLocaTracker {
-    private String username;
+    private String m_username;
     private String momentSent = null;
     private final android.os.Handler handle = new Handler();
-    private Polyline polyline = null;
+    private Polyline m_polyline = null;
 
-    public Location curLoca ;
+    public Location momentLoc ;
 
     public void PopSendMenu(View view) {
         Intent in = new Intent(getApplicationContext(),
@@ -39,9 +39,10 @@ public class PersonalPage extends CurLocaTracker {
         // sending pid to next activity
         in.putExtra("username", username);
         getCurLocation();
-        curLoca = m_LastLocation;
+        momentLoc = m_LastLocation;
         in.putExtra("curlat",m_LastLocation.getLatitude());
         in.putExtra("curlng",m_LastLocation.getLongitude());
+
         // starting new activity
         startActivity(in);
 
@@ -51,26 +52,21 @@ public class PersonalPage extends CurLocaTracker {
         // Update Location in time
         startTracker();
 
+        getCurLocation();
         final EditText startText = (EditText)findViewById(R.id.start);
         final EditText endText = (EditText)findViewById(R.id.des);
 
         String startValue = startText.getText().toString();
         String endValue = endText.getText().toString();
-        if (startValue.equals("") || endValue.equals("")) {
+        if (endValue.equals("")) {
             Context context = getApplicationContext();
             CharSequence text = "Please enter the start and end location";
             int duration = Toast.LENGTH_SHORT;
 
             Toast.makeText(context,text,duration).show();
+        }else if(startValue.equals("")) {
+            startValue = m_LastLocation.getLatitude()+","+m_LastLocation.getLongitude();
         }
-
-        //Todo 1: empty input
-        /*
-        buildGoogleApiClient();
-        curLoca = m_LastLocation;
-        startValue = curLoca.getLatitude()+","+curLoca.getLongitude();
-        System.out.println("startValue:"+startValue);
-        */
 
         final MapUtil util = MapUtil.getInstance();
         final String startPosName = util.formatInputLoca(startValue);
@@ -84,13 +80,16 @@ public class PersonalPage extends CurLocaTracker {
             public void run() {
                 try {
                     final List<List<LatLng>> routes = util.getGoogleRoutes(startPosName, endPosName);
+                    if(routes == null){
+                        throw new SnailException(SnailException.EX_DESP_NoInternet);
+                    }
                     // Todo 2: get friends' routes
                     handle.post(new Runnable() {
                         @Override
                         public void run() {
-                            if(polyline != null)
-                                polyline.remove();
-                            polyline  = util.drawGoogleRoutes(routes, m_map);
+                            if(m_polyline != null)
+                                m_polyline.remove();
+                            m_polyline  = util.drawGoogleRoutes(routes, m_map);
                         }
                     });
                     GeoCodeRequester codeRequester = GeoCodeRequester.getInstance();
@@ -112,10 +111,15 @@ public class PersonalPage extends CurLocaTracker {
                         Toast.makeText(PersonalPage.this, "No path exists! Please re-search!", Toast.LENGTH_LONG).show();
                         Looper.loop();
                     }
+                    else if(e.getExDesp().equals(SnailException.EX_DESP_NoInternet)){
+                        System.out.println("No internet");
+                        Looper.prepare();
+                        Toast.makeText(PersonalPage.this, "No Internet! Please connect internet!", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    }
                 }
             }
         }).start();
-
     }
 
     @Override
@@ -137,7 +141,12 @@ public class PersonalPage extends CurLocaTracker {
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        m_map = mapFragment.getMap();
+
+        GoogleMap map = getPrevMap();
+        //if(map == null)
+            m_map = mapFragment.getMap();
+        //else
+            //m_map = map;
 
         buildGoogleApiClient();
         if ((momentSent != null)){

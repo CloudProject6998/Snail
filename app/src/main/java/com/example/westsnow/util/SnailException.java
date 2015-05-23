@@ -8,6 +8,7 @@ public class SnailException extends Exception {
 	public static final String EX_DESP_PathNotExist = "No Path Found.";
 	public static final String EX_DESP_LocationNameNotExist = "No Location Found.";
 	public static final String EX_DESP_ReachedDestination = "Reach Destination.";
+	public static final String EX_DESP_NoInternet = "Can not connect internet.";
 
 
 	private String m_strExDesp;

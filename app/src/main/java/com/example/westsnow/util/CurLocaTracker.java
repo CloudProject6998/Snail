@@ -42,7 +42,7 @@ import java.util.List;
 public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
 
     public GoogleApiClient m_GoogleApiClient;
-    public GoogleMap m_map;
+    public static GoogleMap m_map = null;
 
     public Location m_LastLocation;
     public Marker m_LastMarker;
@@ -52,12 +52,21 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
 
     protected String username;
 
+
     public void buildGoogleApiClient(){
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+    }
+
+    public GoogleMap getPrevMap(){
+        if(m_map != null){
+            return m_map;
+        }
+        else
+            return null;
     }
 
     @Override

@@ -24,7 +24,7 @@
             <EditText
                 android:id="@+id/start"
                 style="@style/Base.Widget.AppCompat.EditText"
-                android:hint="start"
+                android:hint="Current Location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
