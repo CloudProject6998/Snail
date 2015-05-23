@@ -5,10 +5,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,13 +27,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.*;
 
-import java.util.*;
-
-import com.example.westsnow.myapplication.JSONParser;
-import com.google.android.gms.maps.model.LatLng;
-
 import android.graphics.Color;
-import android.location.*;
 
 /**
  * Created by yingtan on 5/19/15.
@@ -108,14 +105,14 @@ public class MapUtil {
         return obToken;
     }
 
-    public List<List<LatLng>> getRoutes(String origin, String destination) throws SnailException, JSONException {
+    public List<List<LatLng>> getGoogleRoutes(String origin, String destination) throws SnailException, JSONException {
         //String url ="https://maps.googleapis.com/maps/api/directions/json?origin=Queens&destination=Brooklyn&key="+API_KEY;
         List<List<LatLng>> routes = null;
         try {
             String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + "&mode=driving&key=" + API_KEY;
 
             JSONObject obRoute = getValues(null, url);
-            routes = parseRoute(obRoute);
+            routes = parseGoogleRoute(obRoute);
         }
         catch(JSONException e){
             e.printStackTrace();
@@ -141,7 +138,7 @@ public class MapUtil {
     }
     */
 
-    private List<List<LatLng>> parseRoute(JSONObject jObject) throws SnailException{
+    private List<List<LatLng>> parseGoogleRoute(JSONObject jObject) throws SnailException{
 
         List<List<LatLng>> routes = new ArrayList<List<LatLng>>();
         JSONArray jRoutes = null;
@@ -245,7 +242,7 @@ public class MapUtil {
         return points;
     }
 
-    public Polyline drawRoutes(List<List<LatLng>> routes, GoogleMap map){
+    public Polyline drawGoogleRoutes(List<List<LatLng>> routes, GoogleMap map){
 
         PolylineOptions polyLineOptions = new PolylineOptions();
         for(List<LatLng> route : routes){

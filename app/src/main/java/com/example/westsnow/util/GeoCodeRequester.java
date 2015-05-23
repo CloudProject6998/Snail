@@ -8,6 +8,8 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.*;
 /**
  * Created by yingtan on 5/19/15.
@@ -30,9 +32,11 @@ public class GeoCodeRequester {
         return m_instance;
     }
 
-    public void getGeoLocation(Context context, String locationName) {
+    public LatLng getGeoLocation(Context context, String locationName){
         double latitude;
         double longitude;
+
+        LatLng res = null;
 
         List<Address> geocodeMatches = null;
 
@@ -42,13 +46,15 @@ public class GeoCodeRequester {
             e.printStackTrace();
         }
 
-        if (!geocodeMatches.isEmpty()) {
+        if ((geocodeMatches != null) && (!geocodeMatches.isEmpty())) {
             latitude = geocodeMatches.get(0).getLatitude();
             longitude = geocodeMatches.get(0).getLongitude();
 
+            res = new LatLng(latitude,longitude);
             //Todo: show to user  +  save to DB
-            System.out.println("[GeoCoding]:"+latitude +" , "+longitude);
+            System.out.println("GeoCoding:"+latitude +" , "+longitude);
         }
+        return res;
     }
 
 

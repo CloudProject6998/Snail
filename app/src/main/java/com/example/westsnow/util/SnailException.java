@@ -6,6 +6,9 @@ public class SnailException extends Exception {
 	public static final String EX_DESP_LocationNotExist = "Can not access current location.";
 	public static final String EX_DESP_JsonNull = "Json is null.";
 	public static final String EX_DESP_PathNotExist = "No Path Found.";
+	public static final String EX_DESP_LocationNameNotExist = "No Location Found.";
+	public static final String EX_DESP_ReachedDestination = "Reach Destination.";
+
 
 	private String m_strExDesp;
 	private String m_strParam1, m_strParam2;

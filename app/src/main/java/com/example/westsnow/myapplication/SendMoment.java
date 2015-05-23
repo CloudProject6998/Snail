@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 import android.net.Uri;
+import android.location.Location;
 
 import android.provider.MediaStore;
 import android.database.Cursor;
@@ -53,6 +54,8 @@ public class SendMoment extends ActionBarActivity {
 
     private String username;
     private EditText context;
+    public double curLat;
+    public double curLng;
     static final int RESULT_LOAD_IMG = 1;
     static final int REQUEST_IMAGE_CAPTURE = 2;
 
@@ -78,6 +81,9 @@ public class SendMoment extends ActionBarActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        curLat = intent.getDoubleExtra("curlat", 0);
+        curLng = intent.getDoubleExtra("curlng",0);
+
 
         icon = (ImageView) findViewById(R.id.open_image_from_disk_icon);
         icon.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +93,7 @@ public class SendMoment extends ActionBarActivity {
 
                 // custom dialog
                 final Dialog dialog = new Dialog(SendMoment.this);
+                //dialog.setContentView(R.layout.custom);
                 dialog.setContentView(R.layout.gallery_popup);
                 dialog.setTitle("Where to import the photo?");
 
@@ -119,12 +126,11 @@ public class SendMoment extends ActionBarActivity {
                 //popup_alert();
             }
 
-        });//closing the setOnClickListener method
+        });
 
 
 
-    }
-
+    }//closing the setOnClickListener method
 
     public void popup_menu(){
             //Creating the instance of PopupMenu
@@ -239,8 +245,6 @@ public class SendMoment extends ActionBarActivity {
         }
 
     }
-
-
 
     private void scaleImage()
     {
@@ -370,6 +374,9 @@ public class SendMoment extends ActionBarActivity {
                     // this finish() method is used to tell android os that we are done with current //activity now! Moving to other activity
                     ii.putExtra("username", username);
                     ii.putExtra("momentSent", "true");
+                    ii.putExtra("curlat",curLat);
+                    ii.putExtra("curlng",curLng);
+
                     startActivity(ii);
                     return json.getString(TAG_MESSAGE) + "~";
                 } else {
