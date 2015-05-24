@@ -8,9 +8,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.AsyncTask;
-
+import android.content.res.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 
 import com.example.westsnow.myapplication.R;
 import com.example.westsnow.myapplication.Constant;
@@ -24,28 +25,23 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 
-import java.util.List;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 /**
  * Created by yingtan on 5/19/15.
  */
-public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
+public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener{
 
     public GoogleApiClient m_GoogleApiClient;
     public static GoogleMap m_map = null;
 
     public Location m_LastLocation;
-    public Marker m_LastMarker;
+    public static Marker m_LastMarker;
+    public static Marker m_EndMarker;
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
@@ -53,7 +49,6 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
     protected String username;
     protected static long routeID;
     protected dbUtil db;
-
 
     public void buildGoogleApiClient(){
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
@@ -69,9 +64,9 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
         m_GoogleApiClient.connect();
 
         MapUtil util = MapUtil.getInstance();
-        if(LocaChangeTracker.m_routes.size() != 0){
-            System.out.println("[Start !!!!]"  + LocaChangeTracker.m_routes);
-            util.drawGoogleRoutes(LocaChangeTracker.m_routes,m_map,2);
+        if(LocaChangeTracker.m_trackerroutes.size() > 0){
+            System.out.println("[Start !!!!]"  + LocaChangeTracker.m_trackerroutes);
+            util.drawGoogleRoutes(LocaChangeTracker.m_trackerroutes,m_map,2);
         }
         else
             System.out.println("[Start !!!!] null ; null");
@@ -145,9 +140,9 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
 
     public void addCurMarker(){
         getCurLocation();
+        int imageID = getResources().getIdentifier("pin_2", "drawable", getPackageName());
         if(m_LastLocation != null) {
             LatLng curLocation = new LatLng(m_LastLocation.getLatitude(), m_LastLocation.getLongitude());
-
             m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
             if (m_LastMarker != null)
@@ -156,9 +151,10 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
             m_LastMarker = m_map.addMarker(new MarkerOptions()
                     .title("Current Location")
                     .snippet("Cur location")
-                    .position(curLocation));
+                    .position(curLocation)
+                    .alpha(0.9F)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         }
-        startTracker();
     }
 
     public void addMomentMarker(Location curLoca){
@@ -168,12 +164,14 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
 
             m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
+            int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
+
             m_map.addMarker(new MarkerOptions()
                     .title("Moment Location")
                     .snippet("Moment location")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                            //.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                    .icon(BitmapDescriptorFactory.fromResource(imageID))
                     .position(curLocation));
-
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
     }
@@ -241,6 +239,34 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
         }
+    }
+
+
+    private Bitmap scaleImage(Resources res, int id, int lessSideSize) {
+        Bitmap b = null;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeResource(res, id, o);
+
+        float sc = 0.0f;
+        int scale = 1;
+        // if image height is greater than width
+        if (o.outHeight > o.outWidth) {
+            sc = o.outHeight / lessSideSize;
+            scale = Math.round(sc);
+        }
+        // if image width is greater than height
+        else {
+            sc = o.outWidth / lessSideSize;
+            scale = Math.round(sc);
+        }
+
+        // Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        b = BitmapFactory.decodeResource(res, id, o2);
+        return b;
     }
 
 

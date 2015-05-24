@@ -36,10 +36,12 @@ public class Register extends ActionBarActivity {
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-
     public void register(View view){
         //try to register to server
-        LocaChangeTracker.m_routes = new ArrayList<LatLng>();
+        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+        Route.m_recomRoutes = new ArrayList<Long>();
+        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
+
         new RegisterAttempt().execute();
 
 //        if( registerSucceed() ) {

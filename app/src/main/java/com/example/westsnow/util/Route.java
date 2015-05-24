@@ -21,6 +21,7 @@ public class Route {
  * Input: startlat, startlong, deslat, deslong
  * Output: routeID list (three routes)
  */
+    public static List<Long> m_recomRoutes = null;
 
         public List<Long> recommendRoutes(double startlat, double startlong, double deslat, double deslong) throws JSONException, ExecutionException, InterruptedException{
             List<Long> routes = new ArrayList<Long>();
@@ -85,10 +86,9 @@ public class Route {
             } else {
                 Log.d("getStartEndPairs", "null");
             }
+            m_recomRoutes = routes;
             return routes;
         }
-
-
 
  /*
  * Function: Get all the points on the route according to routeID

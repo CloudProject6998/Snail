@@ -27,10 +27,10 @@ import java.util.*;
 public class LocaChangeTracker extends CurLocaTracker{
 
     private static final String TAG = "GpsActivity";
-    private static final double DIST_DIFF_THRESHOLD = 7E-4; //0.000007   0.0000000007
-    private static final double RECORD_ROUTE_THRESHOLD = 7E-7; //0.000007   0.0000000007
-    private static final int DIST_INTERVAL = 10000; // 1m:1000
-    private static final int TIME_INTERVAL = 30; // 30s:30
+    private static final double DIST_DIFF_THRESHOLD = 7E-6; //0.000007   0.0000000007
+    private static final double RECORD_ROUTE_THRESHOLD = 7E-6; //0.000007   0.0000000007
+    private static final int DIST_INTERVAL = 10; // 1m:1000
+    private static final int TIME_INTERVAL = 1; // 30s:30
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
@@ -38,7 +38,7 @@ public class LocaChangeTracker extends CurLocaTracker{
 
     public Location m_LastLocation;
     public LocationManager m_manager;
-    public static List<LatLng> m_routes = new ArrayList<LatLng>();
+    public static List<LatLng> m_trackerroutes = new ArrayList<LatLng>();
 
 
     public LocaChangeTracker(CurLocaTracker locaTracker){
@@ -76,11 +76,11 @@ public class LocaChangeTracker extends CurLocaTracker{
                     int flag = ifReachDestination(location, lastLocation);
                     if(flag == 2){
                         System.out.println("************** Add Route ! **************");
-                        m_routes.add(loc); // enhance
+                        m_trackerroutes.add(loc); // enhance
                     }
                     else if(flag == 1){
                         System.out.println("************** Reach Destination ! **************");
-                        m_routes =  new ArrayList<LatLng>();
+                        m_trackerroutes =  new ArrayList<LatLng>();
                         m_manager.removeGpsStatusListener(listener);
                         m_manager.removeUpdates(locationListener);
 
@@ -102,14 +102,18 @@ public class LocaChangeTracker extends CurLocaTracker{
                 double longitude = location.getLongitude();
                 Route route = new Route();
 
-                Log.d("routeIDNullMe",String.valueOf(routeID));
+                Log.d("routeIDNullMe", String.valueOf(routeID));
                 db = dbUtil.getInstance();
                 route.addPoints(db, routeID, latitude, longitude);
 
-
                 Log.i(TAG, "changed longtitude:" + location.getLongitude());
                 Log.i(TAG, "changed latitude:" + location.getLatitude());
-                m_map.addPolyline(new PolylineOptions().add(lastLocation, curLocation).color(Color.BLUE).width(10));
+
+                //m_map.addPolyline(new PolylineOptions().add(lastLocation, curLocation).color(Color.rgb(0, 152, 252)).width(10));
+                int color_2 = Color.rgb(0, 152, 252);
+                int color_board = Color.rgb(0, 102, 204);
+                m_map.addPolyline(new PolylineOptions().add(lastLocation, curLocation).color(color_board).width(15));
+                m_map.addPolyline(new PolylineOptions().add(lastLocation,curLocation).color(color_2).width(10));
 
                 m_LastLocation = location;
 
@@ -255,7 +259,7 @@ public class LocaChangeTracker extends CurLocaTracker{
         double lngDiff = Math.abs(curLng - desLng);
         System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
         if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
-            System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
+            System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);//latDiff = 4.9900000007596645E-6 lngDiff = 1.2179999998807034E-5
             return 1; // stop
         }
         else if((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) // keep record
