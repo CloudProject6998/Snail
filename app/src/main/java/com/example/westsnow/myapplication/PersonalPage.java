@@ -106,7 +106,7 @@ public class PersonalPage extends CurLocaTracker {
 
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
 
-        Log.d("getRouteID",String.valueOf(routeID));
+        Log.d("getRouteID", String.valueOf(routeID));
         View b = findViewById(R.id.sendButton);
         b.setVisibility(View.VISIBLE);
     }
@@ -214,6 +214,8 @@ public class PersonalPage extends CurLocaTracker {
 
         double lat = intent.getDoubleExtra("curlat", 0);
         double lng = intent.getDoubleExtra("curlng", 0);
+
+        System.out.println("[user]"+username+"[page]"+pageName+"[lat]"+lat+"[lng]"+lng);
 
         Location newCurLoca = new Location("");
         newCurLoca.setLongitude(lng);
