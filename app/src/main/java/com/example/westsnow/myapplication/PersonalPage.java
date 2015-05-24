@@ -50,9 +50,26 @@ public class PersonalPage extends CurLocaTracker {
 
     }
 
+    public void trackRoute(View view) throws JSONException, ExecutionException, InterruptedException{
+        startTracker();
+        getCurLocation();
+        //db = new dbUtil();
+        db = dbUtil.getInstance();
+
+        final EditText startText = (EditText)findViewById(R.id.start);
+        final EditText endText = (EditText)findViewById(R.id.des);
+
+        String startValue = startText.getText().toString();
+        String endValue = endText.getText().toString();
+        double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(this,startValue,endValue,m_LastLocation);
+        Route route = new Route();
+
+        routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+
+    }
+
     public void GetRouteValue(View view) {
         // Update Location in time
-        startTracker();
         getCurLocation();
 
         final EditText startText = (EditText)findViewById(R.id.start);
@@ -85,7 +102,7 @@ public class PersonalPage extends CurLocaTracker {
                     if(routes == null){
                         throw new SnailException(SnailException.EX_DESP_NoInternet);
                     }
-                    // Todo 2: get friends' routes
+                    // get Googlemap's routes
                     handle.post(new Runnable() {
                         @Override
                         public void run() {
@@ -93,9 +110,32 @@ public class PersonalPage extends CurLocaTracker {
                         }
                     });
 
-                    //Todo 3: get startloc, endloc
-                    GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName);
+                    //Todo 2: get friends' recommended routes
+                    Route route = new Route();
+                    double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
+                    List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
 
+                    if (recommendedRoutes != null) {
+                        for (int i = 0; i < recommendedRoutes.size(); i++) {
+                            final List<LatLng> routePoints = route.routePoints(recommendedRoutes.get(i));
+
+                            if (routePoints != null) {
+                                handle.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        m_drawLineType = 3;
+                                        util.drawGoogleRoutes(routePoints, m_map, m_drawLineType);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    //Todo 3: get startloc, endloc
+                    GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
+                }catch (ExecutionException e) {
+                    e.printStackTrace();
+                }catch (InterruptedException e) {
+                    e.printStackTrace();
                 }catch(JSONException e){
                     e.printStackTrace();
                 }catch(SnailException e){
@@ -180,53 +220,4 @@ public class PersonalPage extends CurLocaTracker {
     }
 
 
-    public void testDB(View view) throws JSONException, ExecutionException, InterruptedException {
-        dbUtil db = new dbUtil();
-
-        // Func: insert (routeID, latitude, longitude) pairs to db.
-        db.insertPosition("1","12.3","45.6");
-        db.insertPosition("1","12.345","45.678");
-
-        // Func: get all (latitude, longitude) pairs by routeID.
-        JSONArray posPairs = db.getRoute("1");
-        if (posPairs != null) {
-            Log.d("getPositions", posPairs.toString());
-            for (int i = 0; i < posPairs.length(); i++) {
-                JSONObject c = posPairs.getJSONObject(i);
-                String latitude = c.getString("latitude");
-                String longitude = c.getString("longitude");
-                Log.d("latt", latitude);
-                Log.d("long", longitude);
-            }
-        } else {
-                Log.d("getPositions","null");
-            }
-        // Func: insert (routeID, userID, sLatt, sLong, eLatt, eLong) to db.
-        db.insertStartEnd("diyue@gmail.com","1","1","1","1");
-        db.insertStartEnd("diyue@gmail.com","13","13","13","13");
-
-        // Func: get all (routeID, userName, start, end ) tuples from db.
-        JSONArray StartEndPairs = db.getAllStartEnd();;
-        if (StartEndPairs != null) {
-            Log.d("getStartEndPairs",StartEndPairs.toString());
-            for (int i = 0; i <StartEndPairs.length(); i++) {
-                JSONObject c = StartEndPairs.getJSONObject(i);
-                String routeID = c.getString("routeID");
-                String userName = c.getString("userName");
-                String slatitude = c.getString("sLatt");
-                String slongitude = c.getString("sLong");
-                String elatitude = c.getString("eLatt");
-                String elongitude = c.getString("eLong");
-
-                Log.d("routeID", routeID);
-                Log.d("username", userName);
-                Log.d("sLatt", slatitude);
-                Log.d("sLong", slongitude);
-                Log.d("eLatt", elatitude);
-                Log.d("eLong", elongitude);
-            }
-        } else {
-            Log.d("getStartEndPairs","null");
-        }
-    }
 }
