@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.content.Context;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -34,7 +36,7 @@ public class PersonalPage extends CurLocaTracker {
 
     public Location momentLoc ;
 
-    public void PopSendMenu(View view) {
+    public void SendPhoto() {
         Intent in = new Intent(getApplicationContext(),
                 SendMoment.class);
         // sending pid to next activity
@@ -44,13 +46,49 @@ public class PersonalPage extends CurLocaTracker {
         momentLoc = m_LastLocation;
         in.putExtra("curlat",m_LastLocation.getLatitude());
         in.putExtra("curlng",m_LastLocation.getLongitude());
+        Log.d("SendPhotoRouteID",String.valueOf(routeID));
+        in.putExtra("routeID",String.valueOf(routeID));
 
         // starting new activity
         startActivity(in);
+    }
 
+    public void SendText() {
+        Intent in = new Intent(getApplicationContext(),
+                SendText.class);
+        // sending pid to next activity
+        in.putExtra("username", username);
+        in.putExtra("routeID",String.valueOf(routeID));
+        // starting new activity
+        startActivity(in);
+    }
+
+
+    public void PopSendMenu(View view) {
+        android.widget.PopupMenu popup = new android.widget.PopupMenu(this,view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_send_popup, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch(item.getItemId()){
+                    case R.id.sendText:
+                        SendText();
+                        return true;
+                    case R.id.sendPhoto:
+                        SendPhoto();
+                        return true;
+                    case R.id.sendCancel:
+                        return true;
+                }
+                return true;
+            }
+        });
+        popup.show();
     }
 
     public void trackRoute(View view) throws JSONException, ExecutionException, InterruptedException{
+        Log.d("trackRoute","here");
         startTracker();
         getCurLocation();
 
@@ -65,6 +103,9 @@ public class PersonalPage extends CurLocaTracker {
         Route route = new Route();
 
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+        Log.d("getRouteID",String.valueOf(routeID));
+        View b = findViewById(R.id.sendButton);
+        b.setVisibility(View.VISIBLE);
 
     }
 
@@ -158,6 +199,9 @@ public class PersonalPage extends CurLocaTracker {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_page);
+
+        View b = findViewById(R.id.sendButton);
+        b.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
