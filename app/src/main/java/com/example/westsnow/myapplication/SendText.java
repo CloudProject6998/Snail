@@ -3,6 +3,7 @@ package com.example.westsnow.myapplication;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,7 +34,7 @@ public class SendText extends ActionBarActivity {
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
-    public void send(View view){
+    public void send(){
         new SendMomentAttempt().execute();
     }
 
@@ -41,6 +42,8 @@ public class SendText extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_text);
+
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
         context=(EditText)findViewById(R.id.context);
 
@@ -52,7 +55,7 @@ public class SendText extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_send_moment, menu);
+        getMenuInflater().inflate(R.menu.menu_send_text, menu);
         return true;
     }
 
@@ -65,6 +68,17 @@ public class SendText extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.sendTextBt) {
+            Log.d("actionbar","here");
+            new SendMomentAttempt().execute();
+            return true;
+        } else if (id == R.id.home) {
+            //NavUtils.navigateUpFromSameTask(this);
+            Intent intent = new Intent(this, PersonalPage.class);
+            intent.putExtra("username", username);
+            intent.putExtra("pageName","sendText");
+            startActivity(intent);
             return true;
         }
 
