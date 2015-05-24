@@ -74,11 +74,11 @@
         android:onClick="PopSendMenu"/>
 
     <ImageButton
-        android:id="@+id/testBD"
+        android:id="@+id/trackRoute"
         android:src="@drawable/ic_action_person"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/sendButton"
-        android:onClick="testDB"/>
+        android:onClick="trackRoute"/>
 
 </RelativeLayout>
