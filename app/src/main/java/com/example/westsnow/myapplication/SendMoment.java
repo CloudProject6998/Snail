@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -92,7 +93,9 @@ public class SendMoment extends ActionBarActivity {
             t.join();
             Intent intent = new Intent(this, PersonalPage.class);
             intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto");
+            intent.putExtra("pageName", "sendPhoto");
+            intent.putExtra("curlat",curLat);
+            intent.putExtra("curlng",curLng);
             startActivity(intent);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -112,7 +115,9 @@ public class SendMoment extends ActionBarActivity {
             t.join();
             Intent intent = new Intent(this, PersonalPage.class);
             intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto");
+            intent.putExtra("pageName", "sendPhoto");
+            intent.putExtra("curlat",curLat);
+            intent.putExtra("curlng",curLng);
             startActivity(intent);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -128,8 +133,6 @@ public class SendMoment extends ActionBarActivity {
 
 
     public int uploadFile(String sourceFileUri) {
-
-
         String fileName = sourceFileUri;
 
         HttpURLConnection conn = null;
@@ -175,9 +178,6 @@ public class SendMoment extends ActionBarActivity {
                 conn.setRequestProperty("ENCTYPE", "multipart/form-data");
                 conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
                 conn.setRequestProperty("uploaded_file", fileName);
-
-
-
 
                 dos = new DataOutputStream(conn.getOutputStream());
 
@@ -311,11 +311,10 @@ public class SendMoment extends ActionBarActivity {
         setContentView(R.layout.activity_send_moment);
 
         context=(EditText)findViewById(R.id.context);
-
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         routeID = intent.getStringExtra("routeID");
-
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng",0);
         Log.d("SendMomentGetRouteID",String.valueOf(routeID));
@@ -481,8 +480,6 @@ public class SendMoment extends ActionBarActivity {
 
     }
 
-
-
     private void scaleImage()
     {
         // Get the ImageView and its bitmap
@@ -564,10 +561,13 @@ public class SendMoment extends ActionBarActivity {
             sendPhoto();
             return true;
         } else if (id == R.id.home) {
-            Intent intent = new Intent(this, PersonalPage.class);
-            intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto"); //Todo
-            startActivity(intent);
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            upIntent.putExtra("username", username);
+            upIntent.putExtra("pageName","sendPhoto"); //Todo
+            upIntent.putExtra("curlat",curLat);
+            upIntent.putExtra("curlng", curLng);
+            NavUtils.navigateUpTo(this, upIntent);
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -578,6 +578,8 @@ public class SendMoment extends ActionBarActivity {
         Intent intent = new Intent(this, PersonalPage.class);
         intent.putExtra("username", username);
         intent.putExtra("pageName","sendPhoto");
+        intent.putExtra("curlat",curLat);
+        intent.putExtra("curlng",curLng);
         startActivity(intent);
     }
 }

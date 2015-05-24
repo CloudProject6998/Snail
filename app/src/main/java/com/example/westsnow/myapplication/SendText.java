@@ -27,6 +27,9 @@ public class SendText extends ActionBarActivity {
     private String username;
     private String routeID;
     private EditText context;
+    public double curLat;
+    public double curLng;
+
 
     private ProgressDialog pDialog;
     JSONParser jsonParser = new JSONParser();
@@ -43,13 +46,15 @@ public class SendText extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_text);
 
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
-
         context=(EditText)findViewById(R.id.context);
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         routeID = intent.getStringExtra("routeID");
+        curLat = intent.getDoubleExtra("curlat", 0);
+        curLng = intent.getDoubleExtra("curlng",0);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
 
     @Override
@@ -74,11 +79,14 @@ public class SendText extends ActionBarActivity {
             new SendMomentAttempt().execute();
             return true;
         } else if (id == R.id.home) {
+            Log.d("return","here");
             //NavUtils.navigateUpFromSameTask(this);
-            Intent intent = new Intent(this, PersonalPage.class);
-            intent.putExtra("username", username);
-            intent.putExtra("pageName","sendText");
-            startActivity(intent);
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            upIntent.putExtra("username", username);
+            upIntent.putExtra("pageName","sendText"); //Todo
+            upIntent.putExtra("curlat",curLat);
+            upIntent.putExtra("curlng", curLng);
+            NavUtils.navigateUpTo(this, upIntent);
             return true;
         }
 
@@ -126,6 +134,9 @@ public class SendText extends ActionBarActivity {
                     // this finish() method is used to tell android os that we are done with current //activity now! Moving to other activity
                     ii.putExtra("username", username);
                     ii.putExtra("routeID",routeID);
+                    ii.putExtra("pageName", "sendText");//Todo
+                    ii.putExtra("curlat", curLat);
+                    ii.putExtra("curlng", curLng);
                     startActivity(ii);
                     return json.getString(TAG_MESSAGE) + "~";
                 } else {

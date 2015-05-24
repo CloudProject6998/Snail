@@ -57,6 +57,8 @@ public class PersonalPage extends CurLocaTracker {
         Intent in = new Intent(getApplicationContext(),
                 SendText.class);
         // sending pid to next activity
+        getCurLocation();
+        momentLoc = m_LastLocation;
         in.putExtra("username", username);
         in.putExtra("routeID",String.valueOf(routeID));
         in.putExtra("curlat",m_LastLocation.getLatitude());
@@ -229,8 +231,10 @@ public class PersonalPage extends CurLocaTracker {
         buildGoogleApiClient();
         if ((pageName != null)){
                 System.out.println("[After send photo] !");
+            if(pageName.equals("sendPhoto") || pageName.equals("sendText"))
                 addMomentMarker(newCurLoca); // add moment marker
-                drawExistedLines();
+
+            drawExistedLines();
         }
     }
     @Override
@@ -254,7 +258,12 @@ public class PersonalPage extends CurLocaTracker {
             Intent in = new Intent(getApplicationContext(),
                     HomePage.class);
             // sending pid to next activity
+            getCurLocation();
+            momentLoc = m_LastLocation;
             in.putExtra("username", username);
+            in.putExtra("routeID",String.valueOf(routeID));
+            in.putExtra("curlat",m_LastLocation.getLatitude());
+            in.putExtra("curlng",m_LastLocation.getLongitude());
             // starting new activity
             startActivity(in);
         }

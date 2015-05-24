@@ -4,6 +4,7 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,7 +50,8 @@ public class HomePage extends ListActivity {
 
     private EditText targetEmail;
 
-
+    public double curLat;
+    public double curLng;
 
     //add funtion of addFriend Button
     public void addFriend(View view){
@@ -84,9 +86,12 @@ public class HomePage extends ListActivity {
         setContentView(R.layout.activity_home_page);
 
         targetEmail = (EditText) findViewById(R.id.email);
-
         Intent intent = getIntent();
         username  = intent.getStringExtra("username");
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        curLat = intent.getDoubleExtra("curlat",0);
+        curLng = intent.getDoubleExtra("curlng",0);
+
 
 //        // create the grid item mapping
 //        String[] from = new String[] {"icon", "Alias", "Description"};
@@ -114,6 +119,7 @@ public class HomePage extends ListActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 // getting values from selected ListItem
+                Log.d("click","here");
                 String username = ((TextView) view.findViewById(R.id.secondLine)).getText().toString();
 
                 // Starting new intent
@@ -121,6 +127,9 @@ public class HomePage extends ListActivity {
                         TimeLine.class);
                 // sending pid to next activity
                 in.putExtra("username", username);
+                in.putExtra("curlat",curLat);
+                in.putExtra("curlng",curLng);
+
 
                 // starting new activity
                 startActivity(in);
@@ -147,11 +156,16 @@ public class HomePage extends ListActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.home) {
-            Intent intent = new Intent(this, PersonalPage.class);
-            intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto");
-            startActivity(intent);
+        } else if (id == android.R.id.home) {
+            Log.d("home","here");
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            upIntent.putExtra("username", username);
+            upIntent.putExtra("pageName","friendList"); //Todo
+            upIntent.putExtra("curlat",curLat);
+            upIntent.putExtra("curlng", curLng);
+            NavUtils.navigateUpTo(this,upIntent);
+
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +36,9 @@ public class TimeLine extends ListActivity {
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_USER = "users";
 
+    public double curLat;
+    public double curLng;
+
     private TimelineAdapter timelineAdapter;
     private List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
@@ -45,6 +49,9 @@ public class TimeLine extends ListActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        curLat = intent.getDoubleExtra("curlat", 0);
+        curLng = intent.getDoubleExtra("curlng", 0);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         lv = getListView();
         lv.setDividerHeight(0);
@@ -68,11 +75,16 @@ public class TimeLine extends ListActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.home) {
-            Intent intent = new Intent(this, PersonalPage.class);
-            intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto");
-            startActivity(intent);
+        } else if (id == android.R.id.home) {
+            Log.d("timeline","here");
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            upIntent.putExtra("username", username);
+            upIntent.putExtra("pageName","timeLine"); //Todo
+            upIntent.putExtra("curlat",curLat);
+            upIntent.putExtra("curlng", curLng);
+            NavUtils.navigateUpTo(this, upIntent);
+
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
