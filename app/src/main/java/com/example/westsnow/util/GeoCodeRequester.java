@@ -80,8 +80,13 @@ public class GeoCodeRequester {
 
         String endPosName = util.formatInputLoca(endValue);
         LatLng endLoca = getGeoLocation(context, endPosName);
+
         startEndLocs[2] = endLoca.latitude;
         startEndLocs[3] = endLoca.longitude;
+
+        if(endLoca == null){
+            // no input of destination and do tracker- > wrong
+        }
 
         sendMessage2Listener(startLoca,endLoca);
         return startEndLocs;

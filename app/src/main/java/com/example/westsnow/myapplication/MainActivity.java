@@ -23,6 +23,8 @@ import org.json.JSONObject;
 import android.os.Looper;
 
 import com.example.westsnow.util.LocaChangeTracker;
+import com.example.westsnow.util.MapUtil;
+import com.example.westsnow.util.Route;
 import com.example.westsnow.util.SnailException;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -58,7 +60,10 @@ public class MainActivity extends ActionBarActivity {
 
     public void login(View view) {
 
-        LocaChangeTracker.m_routes = new ArrayList<LatLng>();
+        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+        Route.m_recomRoutes = new ArrayList<Long>();
+        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
+
         new AttemptLogin().execute();
 
 //        if (signInSucceed()) {

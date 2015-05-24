@@ -35,8 +35,7 @@ import android.graphics.Color;
 public class MapUtil {
     private static MapUtil m_instance = new MapUtil();
     private static String API_KEY  = "AIzaSyCAu_Ff5LC0H17WPavjIhajVl7KXeck9mU";
-    public static Polyline m_polyline = null;
-
+    public static List<LatLng> m_googleRoutes = new ArrayList<LatLng>();
 
     public static MapUtil getInstance() {
         if(m_instance == null)
@@ -121,6 +120,8 @@ public class MapUtil {
             if(obRoute == null)
                 throw new SnailException(SnailException.EX_DESP_NoInternet); // /?//?/????
             routes = parseGoogleRoute(obRoute);
+            if(routes != null)
+                m_googleRoutes = routes;
         }
         catch(JSONException e){
             e.printStackTrace();
@@ -226,7 +227,6 @@ public class MapUtil {
                 truck = 0;
             }
         }
-
         int i=0;
         int j=1;
         int len = trucks.size();
@@ -250,43 +250,54 @@ public class MapUtil {
 
     public void drawGoogleRoutes(List<LatLng> routes, GoogleMap map, int lineType) {
 
-        //int green = (int) ((float) 255 - (float) (i / (float) size) * (float) 255);
-        //int red = (int) ((float) 0 + (float) (i / (float) size) * (float) 255);
+        if((routes == null)||(routes.size() == 0))
+            return;
+
+        LatLng endPos = routes.get(routes.size() - 1);
 
         PolylineOptions polyLineOptions = new PolylineOptions();
-        if (lineType == 1) { //draw friend's line or google line
+        PolylineOptions polyLineOptions_2 = new PolylineOptions();
+        if (lineType == 1) { //draw google line : red
+            int color_1 = Color.RED;
             for (LatLng route : routes) {
                 polyLineOptions.add(route);
-                polyLineOptions.width(6);
-                polyLineOptions.geodesic(true);
-                polyLineOptions.color(Color.rgb(255, 51, 51));
+                polyLineOptions.width(10);
+                polyLineOptions.color(Color.WHITE);
 
+                polyLineOptions_2.add(route);
+                polyLineOptions_2.width(6);
+                polyLineOptions_2.color(color_1);
+            }
+            map.addMarker(new MarkerOptions().title("Destination").position(endPos));
+        }
+        else if(lineType == 2){// draw previous line : blue
+            int color_2 = Color.rgb(0, 152, 252);
+            int color_board = Color.rgb(0, 102, 204);
+            for (LatLng route : routes) {
+                polyLineOptions.add(route);
+                polyLineOptions.width(15);
+                polyLineOptions.color(color_board);
+
+                polyLineOptions_2.add(route);
+                polyLineOptions_2.width(10);
+                polyLineOptions_2.color(color_2);
+
+            }
+        } else if (lineType == 3){ //draw recommendation route
+            int color_3 = Color.rgb(255, 128, 0);
+            for (LatLng route : routes) {
+                polyLineOptions.add(route);
+                polyLineOptions.width(10);
+                polyLineOptions.color(Color.WHITE);
+
+                polyLineOptions_2.add(route);
+                polyLineOptions_2.width(6);
+                polyLineOptions_2.color(color_3);
             }
         }
-        else if(lineType == 2){// draw previous line
-            for (LatLng route : routes) {
-                polyLineOptions.add(route);
-                polyLineOptions.width(6);
-                polyLineOptions.color(Color.rgb(52, 148, 222));
-                polyLineOptions.geodesic(true);
-
-            }
-        } else if (lineType == 3){
-            for (LatLng route : routes) {
-                polyLineOptions.add(route);
-                polyLineOptions.width(6);
-                polyLineOptions.color(Color.rgb(255, 128, 0));
-                polyLineOptions.geodesic(true);
-            }
-        }
-        LatLng startPos = null;
-        if(routes.size() > 0){
-                startPos = routes.get(0);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(startPos, 13));
-            }
-
-        m_polyline = map.addPolyline(polyLineOptions);
-        System.out.println("Start !!!! add poly "+polyLineOptions.toString());
+        map.addPolyline(polyLineOptions);
+        map.addPolyline(polyLineOptions_2);
+        System.out.println("draw  poly " + polyLineOptions.toString());
     }
 
     public String formatInputLoca(String inputLoca){

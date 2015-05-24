@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.View;
 import android.content.Context;
-import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -63,7 +63,6 @@ public class PersonalPage extends CurLocaTracker {
         startActivity(in);
     }
 
-
     public void PopSendMenu(View view) {
         android.widget.PopupMenu popup = new android.widget.PopupMenu(this,view);
         MenuInflater inflater = popup.getMenuInflater();
@@ -71,7 +70,7 @@ public class PersonalPage extends CurLocaTracker {
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                switch(item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.sendText:
                         SendText();
                         return true;
@@ -89,6 +88,7 @@ public class PersonalPage extends CurLocaTracker {
 
     public void trackRoute(View view) throws JSONException, ExecutionException, InterruptedException{
         Log.d("trackRoute","here");
+        System.out.println("start tracker trackRoute");
         startTracker();
         getCurLocation();
 
@@ -103,16 +103,18 @@ public class PersonalPage extends CurLocaTracker {
         Route route = new Route();
 
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+
         Log.d("getRouteID",String.valueOf(routeID));
         View b = findViewById(R.id.sendButton);
         b.setVisibility(View.VISIBLE);
-
     }
 
     public void GetRouteValue(View view) {
+
         // Update Location in time
-        startTracker();
+        m_map.clear();
         getCurLocation();
+        addCurMarker();
 
         final EditText startText = (EditText)findViewById(R.id.start);
         final EditText endText = (EditText)findViewById(R.id.des);
@@ -148,8 +150,8 @@ public class PersonalPage extends CurLocaTracker {
                 handle.post(new Runnable() {
                     @Override
                     public void run() {
-                        m_drawLineType = 2;
-                        util.drawGoogleRoutes(routes,m_map,m_drawLineType);
+                        m_drawLineType = 1;
+                        util.drawGoogleRoutes(routes, m_map, m_drawLineType);
                     }
                 });
                 Route route = new Route();
@@ -193,6 +195,7 @@ public class PersonalPage extends CurLocaTracker {
             }
             }
         }).start();
+
     }
 
     @Override
@@ -222,7 +225,31 @@ public class PersonalPage extends CurLocaTracker {
         buildGoogleApiClient();
         if ((momentSent != null)){
             System.out.println("[After send moment Not null] !");
-            addMomentMarker(newCurLoca);
+            addMomentMarker(newCurLoca); // add moment marker
+
+            MapUtil util = MapUtil.getInstance();
+            util.drawGoogleRoutes(MapUtil.m_googleRoutes, m_map, 1); // add google route searched before
+
+            //add recommended route
+            Route route = new Route();
+            List<Long> prevRecomRoutes = Route.m_recomRoutes;
+            try{
+            if (prevRecomRoutes != null) {
+                for (int i = 0; i < prevRecomRoutes.size(); i++) {
+                    List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
+                    if (routePoints != null) {
+                        util.drawGoogleRoutes(routePoints, m_map, 3);
+                    }
+                }
+            }
+            }catch (ExecutionException e) {
+                e.printStackTrace();
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }catch(JSONException e) {
+                e.printStackTrace();
+            }
+
         }
     }
     @Override
@@ -252,5 +279,4 @@ public class PersonalPage extends CurLocaTracker {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }
