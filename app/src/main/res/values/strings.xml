@@ -7,6 +7,7 @@
     <string name="title_activity_register">Register</string>
     <string name="title_activity_test">Test</string>
     <string name="title_activity_time_line">TimeLine</string>
+    <string name="title_activity_send_text">SendText</string>
     <string name="homepage_header">Friends List</string>
     <string name="title_activity_personal_page">PersonalPage</string>
     <string name="title_activity_send_moment">SendMoment</string>
