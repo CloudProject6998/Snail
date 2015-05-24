@@ -7,11 +7,26 @@
 
         <item
             android:id="@+id/from_Local"
-            android:title="from Local"/>
+            android:title="from Local"
+            android:visible="false"/>
 
         <item
             android:id="@+id/from_Camera"
-            android:title="from Camera"/>
+            android:title="from Camera"
+            android:visible="false"/>
+
+        <item
+            android:id="@+id/sendInMoment"
+            android:title="send"
+            android:icon="@drawable/sendflower"
+            app:showAsAction="always|withText"/>
+
+        <item
+            android:id="@+id/action_settings"
+            android:title="@string/action_settings"
+            android:orderInCategory="100"
+            app:showAsAction="never" />
+
 
 
 </menu>
