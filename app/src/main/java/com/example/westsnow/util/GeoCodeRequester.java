@@ -5,8 +5,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
+import android.location.*;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -14,7 +13,7 @@ import java.util.*;
 /**
  * Created by yingtan on 5/19/15.
  */
-public class GeoCodeRequester {
+public class GeoCodeRequester{
 
     public JSONObject m_jsonObj;
     public String m_returnedJson;
@@ -57,22 +56,33 @@ public class GeoCodeRequester {
         return res;
     }
 
-    public double[] getStartEndLocation(Context context, String startPosName, String endPosName){
-        LatLng startLoca = getGeoLocation(context, startPosName);
+    public double[] getStartEndLocation(Context context, String startValue, String endValue, Location lastLoc){
+
+        MapUtil util = MapUtil.getInstance();
+        double[] startEndLocs = new double[4];
+        LatLng startLoca = null;
+
+        if(startValue.equals("")) {
+            startEndLocs[0] = lastLoc.getLatitude();
+            startEndLocs[1] = lastLoc.getLongitude();
+
+            startLoca = new LatLng(startEndLocs[0],startEndLocs[1]);
+        }
+        else{
+            String startPosName = util.formatInputLoca(startValue);
+            startLoca = getGeoLocation(context, startPosName);
+            startEndLocs[0] = startLoca.latitude;
+            startEndLocs[1] = startLoca.longitude;
+
+        }
+
+        String endPosName = util.formatInputLoca(endValue);
         LatLng endLoca = getGeoLocation(context, endPosName);
-        sendMessage2Listener(startLoca, endLoca);
-        double startLat = startLoca.latitude;
-        double startLng = startLoca.longitude;
-        double endLat = endLoca.latitude;
-        double endLng = endLoca.longitude;
+        startEndLocs[2] = endLoca.latitude;
+        startEndLocs[3] = endLoca.longitude;
 
-        double[] startEndLoc = new double[4];
-        startEndLoc[0] = startLat;
-        startEndLoc[1] = startLng;
-        startEndLoc[2] = endLat;
-        startEndLoc[3] = endLng;
-
-        return startEndLoc;
+        sendMessage2Listener(startLoca,endLoca);
+        return startEndLocs;
 
     }
 
@@ -80,8 +90,10 @@ public class GeoCodeRequester {
 
         LocaChangeTracker.m_startLocation = startLoca;
         LocaChangeTracker.m_endLocation = endLoca;
-    }
+        CurLocaTracker.m_startLocation = startLoca;
+        CurLocaTracker.m_endLocation = endLoca;
 
+    }
 
 
 }

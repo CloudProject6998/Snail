@@ -47,7 +47,14 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
     public Location m_LastLocation;
     public Marker m_LastMarker;
 
+    public static LatLng m_startLocation;
+    public static LatLng m_endLocation;
+
     protected String username;
+    protected static long routeID;
+    protected dbUtil db;
+
+
     public void buildGoogleApiClient(){
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
                 .addConnectionCallbacks(this)
@@ -55,42 +62,21 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
                 .addApi(LocationServices.API)
                 .build();
     }
+
     @Override
     protected void onStart() { // when load mapFragment, call onStart
 
+        System.out.println("[Start !!!!]");
         super.onStart();
-        m_GoogleApiClient.connect();
-
-        MapUtil util = MapUtil.getInstance();
-        if(LocaChangeTracker.m_routes.size() != 0){
-        System.out.println("[Start !!!!]"  + LocaChangeTracker.m_routes);
-            util.drawGoogleRoutes(LocaChangeTracker.m_routes,m_map,2);
-        }
-        else
-            System.out.println("[Start !!!!] null ; null");
-    }
-
-    @Override
-    protected void onResume() {
-        System.out.println("[Resume !!!!]");
-        super.onResume();
         m_GoogleApiClient.connect();
     }
 
     @Override
     public void onConnected(Bundle connectionHint){// be triggered, when call connect()
+
         System.out.println("[Connected !!!!]");
         addCurMarker();
-    }
 
-    @Override
-    protected void onPause() {
-
-        System.out.println("[Paused !!!!]");
-        super.onPause();
-        if (m_GoogleApiClient.isConnected()) {
-            m_GoogleApiClient.disconnect();
-        }
     }
 
     @Override
@@ -134,6 +120,7 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
     protected synchronized void startTracker() { // called at click button
         LocaChangeTracker tracker = new LocaChangeTracker(this);
         tracker.trackChangedLocation(this);
+
     }
 
     public void addCurMarker(){
@@ -151,7 +138,6 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
                     .snippet("Cur location")
                     .position(curLocation));
         }
-        startTracker();
     }
 
     public void addMomentMarker(Location curLoca){
@@ -170,6 +156,8 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
     }
+
+
 
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private static final String TAG_USER = "users";
@@ -202,15 +190,15 @@ public class  CurLocaTracker extends ActionBarActivity implements OnMapReadyCall
 //                String imageURL = Constant.serverDNS + "/" + imageLocation;
 //                System.out.println("here");
 
-                TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.title));
-                tvTitle.setText(marker.getTitle());
-                TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
-                tvSnippet.setText(marker.getSnippet()); //Should be changed to address on EC2
-                //tvSnippet.setText(context); //Should be changed to address on EC2
-                ImageView ivImage = ((ImageView)myContentsView.findViewById(R.id.image));
-                //new DownloadImageTask(ivImage).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
-                ivImage.setImageResource(R.drawable.photoarea); //Should be changed to address on EC2
-                ivImage.getLayoutParams().height = 250;
+            TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.title));
+            tvTitle.setText(marker.getTitle());
+            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
+            tvSnippet.setText(marker.getSnippet()); //Should be changed to address on EC2
+            //tvSnippet.setText(context); //Should be changed to address on EC2
+            ImageView ivImage = ((ImageView)myContentsView.findViewById(R.id.image));
+            //new DownloadImageTask(ivImage).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+            ivImage.setImageResource(R.drawable.photoarea); //Should be changed to address on EC2
+            ivImage.getLayoutParams().height = 250;
             //} catch (JSONException e) {
             //    e.printStackTrace();
             //}

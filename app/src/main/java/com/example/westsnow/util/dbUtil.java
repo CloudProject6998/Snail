@@ -42,6 +42,19 @@ public class dbUtil {
 
     public static JSONArray positions = null;
     public static JSONArray StartEndPairs = null;
+    public static String assignedRID = null;
+
+    private static dbUtil m_instance = null;
+
+    private dbUtil(){
+
+    }
+    public static dbUtil getInstance(){
+        if(m_instance == null)
+            m_instance = new dbUtil();
+
+        return m_instance;
+    }
 
     /*
         http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/addpos.php?routeID=1&latt=40.809778&long=-73.961387
@@ -51,9 +64,7 @@ public class dbUtil {
         }
     */
     public void insertPosition(String routeID, String latitude, String longitude) throws JSONException {
-        //this.routeID = routeID;
-        //this.latitude = latitude;
-        //this.longitude = longitude;
+
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(routeID);
         passing.add(latitude);
@@ -89,12 +100,7 @@ public class dbUtil {
             message: "the data has been inserted."
         }
      */
-    public void insertStartEnd(String userName, String sLatitude, String sLongitude, String eLatitude, String eLongitude) {
-        //this.UserName = userName;
-        //this.sLatt = sLatitude;
-        //this.sLong = sLongitude;
-        //this.eLatt = eLatitude;
-        //this.eLong = eLongitude;
+    public String insertStartEnd(String userName, String sLatitude, String sLongitude, String eLatitude, String eLongitude) throws ExecutionException, InterruptedException {
 
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(userName);
@@ -102,25 +108,12 @@ public class dbUtil {
         passing.add(sLongitude);
         passing.add(eLatitude);
         passing.add(eLongitude);
-        new InsertStartEnd().execute(passing);
+        dbUtil.assignedRID = new InsertStartEnd().execute(passing).get();
+
+        Log.d("**insertStartEnd", String.valueOf(dbUtil.assignedRID));
+        return dbUtil.assignedRID;
     }
 
-    /*
-        http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/getStartEnd.php
-        {
-            StartEndPairs: [
-                {
-                    routeID: "1",
-                    userName: "diyue@gmail.com",
-                    sLatt: "40.809578",
-                    sLong: "-73.961387",
-                    eLatt: "40.807373",
-                    eLong: "-73.961312"
-                },etc
-            ],
-            succuss: 1
-        }
-     */
     public JSONArray getAllStartEnd() throws ExecutionException, InterruptedException {
         dbUtil.StartEndPairs = new LoadALlStartEnd().execute().get();
 
@@ -136,6 +129,23 @@ public class dbUtil {
     class LoadALlStartEnd extends AsyncTask<String, String, JSONArray> {
 
         protected JSONArray doInBackground(String... args) {
+            /*
+                http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/getStartEnd.php
+                {
+                    StartEndPairs: [
+                        {
+                            routeID: "1",
+                            userName: "diyue@gmail.com",
+                            sLatt: "40.809578",
+                            sLong: "-73.961387",
+                            eLatt: "40.807373",
+                            eLong: "-73.961312",
+                            count: "0"
+                        },etc
+                    ],
+                    succuss: 1
+                }
+            */
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             JSONObject json = jParser.makeHttpRequest(getStartEndURL, "GET", params);
             //Log.d("AllStartEnd: ", json.toString());
@@ -177,21 +187,18 @@ public class dbUtil {
                 params.add(new BasicNameValuePair("eLatt", passed.get(3)));
                 params.add(new BasicNameValuePair("eLong", passed.get(4)));
 
-
                 JSONObject json = jParser.makeHttpRequest(addStartEndURL, "GET", params);
                 //Log.d("InsertStartEndAttempt:", json.toString());
-
-                return json.getString(TAG_MESSAGE) + "~";
+                String getRouteID = json.getString("routeID");
+                return getRouteID;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
-        protected void onPostExecute(String message) {
-            if (message != null) {
-                Log.d("msg",message);
-            }
+        protected void onPostExecute(String routeID) {
+            dbUtil.assignedRID = routeID;
         }
     }
 

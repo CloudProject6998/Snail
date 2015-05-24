@@ -17,7 +17,11 @@ import android.util.Log;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+
 /**
  * Created by yingtan on 5/18/15.
  */
@@ -25,15 +29,15 @@ public class LocaChangeTracker extends CurLocaTracker{
 
     private static final String TAG = "GpsActivity";
     private static final double DIST_DIFF_THRESHOLD = 0.0000000007; //0.000007
-    private static final int DIST_INTERVAL = 100; // 1m:1000
-    private static final int TIME_INTERVAL = 1; // 30s:30
+    private static final int DIST_INTERVAL = 10000; // 1m:1000
+    private static final int TIME_INTERVAL = 15; // 30s:30
+
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
 
     public Location m_LastLocation;
     public LocationManager m_manager;
-    public static List<LatLng> m_routes = new ArrayList<LatLng>();
 
 
     public LocaChangeTracker(CurLocaTracker locaTracker){
@@ -41,8 +45,9 @@ public class LocaChangeTracker extends CurLocaTracker{
         m_LastLocation = locaTracker.m_LastLocation;
         m_LastMarker = locaTracker.m_LastMarker;
 
-        //m_startLocation = locaTracker.m_startLocation;
-        //m_endLocation = locaTracker.m_endLocation;
+        m_startLocation = locaTracker.m_startLocation;
+        m_endLocation = locaTracker.m_endLocation;
+
         try{
             if ((m_map == null)) {
                 throw new SnailException(SnailException.EX_DESP_MapNotExist);
@@ -54,13 +59,11 @@ public class LocaChangeTracker extends CurLocaTracker{
 
     private LocationListener locationListener = new LocationListener(){
 
-        public void onLocationChanged(Location location){
+        public void onLocationChanged(Location location) {
             try {
                 if (location == null) {
                     throw new SnailException(SnailException.EX_DESP_LocationNotExist); // ??
                 }
-                LatLng loc = new LatLng(location.getLatitude(),location.getLongitude());
-                m_routes.add(loc);
                 if(m_endLocation != null){
 
                     System.out.println("[Listener Get End Pos]"+m_endLocation.latitude+" ,"+m_endLocation.longitude);
@@ -91,6 +94,13 @@ public class LocaChangeTracker extends CurLocaTracker{
                         .position(curLocation));
 
                 //Todo 5: save it to DB
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Route route = new Route();
+
+                Log.d("routeIDNullMe",String.valueOf(routeID));
+                db = dbUtil.getInstance();
+                route.addPoints(db, routeID, latitude, longitude);
 
 
                 Log.i(TAG, "changed longtitude:" + location.getLongitude());
@@ -99,7 +109,9 @@ public class LocaChangeTracker extends CurLocaTracker{
 
                 m_LastLocation = location;
 
-            }catch(SnailException e){
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch(SnailException e){
                 System.out.println(SnailException.EX_DESP_LocationNotExist);
             }
         }
