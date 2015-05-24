@@ -133,7 +133,8 @@ public class HomePage extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_test, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
+        //return true;
     }
 
     @Override
@@ -146,6 +147,11 @@ public class HomePage extends ListActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.home) {
+            Intent intent = new Intent(this, PersonalPage.class);
+            intent.putExtra("username", username);
+            intent.putExtra("pageName","sendPhoto");
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
