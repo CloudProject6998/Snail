@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 import android.net.Uri;
+import android.app.Activity;
 
 import android.provider.MediaStore;
 import android.database.Cursor;
@@ -57,7 +58,7 @@ import java.util.List;
 import java.io.File;
 
 
-public class SendMoment extends ActionBarActivity {
+public class SendMoment extends Activity{
 
     private String username;
     private String routeID;
@@ -311,12 +312,13 @@ public class SendMoment extends ActionBarActivity {
         setContentView(R.layout.activity_send_moment);
 
         context=(EditText)findViewById(R.id.context);
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         routeID = intent.getStringExtra("routeID");
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng",0);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         Log.d("SendMomentGetRouteID",String.valueOf(routeID));
 
 
@@ -560,13 +562,15 @@ public class SendMoment extends ActionBarActivity {
         } else if (id == R.id.sendInMoment) {
             sendPhoto();
             return true;
-        } else if (id == R.id.home) {
+        } else if (id == android.R.id.home) {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName","sendPhoto"); //Todo
+            upIntent.putExtra("pageName","sendPhotoNull"); //Todo
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
             NavUtils.navigateUpTo(this, upIntent);
+
+            return true;
 
         }
 
@@ -577,7 +581,7 @@ public class SendMoment extends ActionBarActivity {
         // Do something in response to button
         Intent intent = new Intent(this, PersonalPage.class);
         intent.putExtra("username", username);
-        intent.putExtra("pageName","sendPhoto");
+        intent.putExtra("pageName","sendPhotoNull");
         intent.putExtra("curlat",curLat);
         intent.putExtra("curlng",curLng);
         startActivity(intent);

@@ -2,6 +2,7 @@ package com.example.westsnow.util;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,9 +28,13 @@ import com.google.android.gms.maps.model.*;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
+import java.net.URL;
 
 /**
  * Created by yingtan on 5/19/15.
@@ -38,6 +43,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
     public GoogleApiClient m_GoogleApiClient;
     public static GoogleMap m_map = null;
+    private final android.os.Handler handle = new Handler();
 
     public Location m_LastLocation;
     public static Marker m_LastMarker;
@@ -49,6 +55,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
     protected String username;
     protected static long routeID;
     protected dbUtil db;
+    protected JSONObject m_json;
 
     public void buildGoogleApiClient(){
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
@@ -193,15 +200,15 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             // getting JSON string from URL
             params.add(new BasicNameValuePair("email", username));
 
-                TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.title));
-                tvTitle.setText(marker.getTitle());
-                TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
-                tvSnippet.setText(marker.getSnippet()); //Should be changed to address on EC2
-                //tvSnippet.setText(context); //Should be changed to address on EC2
-                ImageView ivImage = ((ImageView)myContentsView.findViewById(R.id.image));
-                //new DownloadImageTask(ivImage).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
-                ivImage.setImageResource(R.drawable.photoarea); //Should be changed to address on EC2
-                ivImage.getLayoutParams().height = 250;
+            TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.title));
+            tvTitle.setText(marker.getTitle());
+            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
+            tvSnippet.setText(marker.getSnippet()); //Should be changed to address on EC2
+            //tvSnippet.setText(context); //Should be changed to address on EC2
+            ImageView ivImage = ((ImageView)myContentsView.findViewById(R.id.image));
+            //new DownloadImageTask(ivImage).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
+            ivImage.setImageResource(R.drawable.photoarea); //Should be changed to address on EC2
+            ivImage.getLayoutParams().height = 250;
             //} catch (JSONException e) {
             //    e.printStackTrace();
             //}

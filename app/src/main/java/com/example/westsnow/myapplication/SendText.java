@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.app.Activity;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SendText extends ActionBarActivity {
+public class SendText extends Activity {
 
     private String username;
     private String routeID;
@@ -53,7 +54,7 @@ public class SendText extends ActionBarActivity {
         routeID = intent.getStringExtra("routeID");
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng",0);
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -78,12 +79,12 @@ public class SendText extends ActionBarActivity {
             Log.d("actionbar","here");
             new SendMomentAttempt().execute();
             return true;
-        } else if (id == R.id.home) {
+        } else if (id == android.R.id.home) {
             Log.d("return","here");
             //NavUtils.navigateUpFromSameTask(this);
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName","sendText"); //Todo
+            upIntent.putExtra("pageName","sendTextNull"); //Todo
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
             NavUtils.navigateUpTo(this, upIntent);
