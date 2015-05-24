@@ -60,6 +60,11 @@
             android:name=".SendMoment"
             android:label="@string/title_activity_send_moment" >
         </activity>
+        <activity
+            android:name=".SendText"
+            android:label="@string/title_activity_send_text">
+        </activity>
+
     </application>
 
 </manifest>
