@@ -68,6 +68,11 @@ public class TimeLine extends ListActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.home) {
+            Intent intent = new Intent(this, PersonalPage.class);
+            intent.putExtra("username", username);
+            intent.putExtra("pageName","sendPhoto");
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
