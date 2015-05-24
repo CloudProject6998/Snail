@@ -1,28 +1,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:orientation="vertical"
+    tools:context=".SendText">
+
 
     <EditText
         android:id="@+id/context"
-        android:hint="your moment"
-        android:layout_width="250dp"
+        android:hint="Input your moments"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
+        android:layout_margin="50dp"
         android:layout_gravity="center"
+        android:gravity="top"
+        android:inputType="textMultiLine"
         android:ems="10" >
 
         <requestFocus />
     </EditText>
-
-
-    <Button
-        android:id="@+id/RegisterButton"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="send"
-        android:onClick="send" />
 
 </LinearLayout>
