@@ -92,14 +92,7 @@ public class dbUtil {
         }
     }
 
-    /*
-        http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/addStartEnd.php?routeID=3&sLatt=40.209578
-        &sLong=-73.961387&eLatt=40.807373&eLong=-73.961312&username=diyue@gmail.com
-        {
-            success: 1,
-            message: "the data has been inserted."
-        }
-     */
+
     public String insertStartEnd(String userName, String sLatitude, String sLongitude, String eLatitude, String eLongitude) throws ExecutionException, InterruptedException {
 
         ArrayList<String> passing = new ArrayList<String>();
@@ -175,6 +168,14 @@ public class dbUtil {
     class InsertStartEnd extends AsyncTask<ArrayList<String>, String, String> {
         boolean failure = false;
 
+        /*
+    http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/addStartEnd.php?routeID=3&sLatt=40.209578
+    &sLong=-73.961387&eLatt=40.807373&eLong=-73.961312&username=diyue@gmail.com
+    {
+        success: 1,
+        message: "the data has been inserted."
+    }
+ */
         @Override
         protected String doInBackground(ArrayList<String>... passing) {
             ArrayList<String> passed = passing[0];
@@ -188,6 +189,7 @@ public class dbUtil {
                 params.add(new BasicNameValuePair("eLong", passed.get(4)));
 
                 JSONObject json = jParser.makeHttpRequest(addStartEndURL, "GET", params);
+                Log.d("insertStartEnd",json.getString("message"));
                 //Log.d("InsertStartEndAttempt:", json.toString());
                 String getRouteID = json.getString("routeID");
                 return getRouteID;
