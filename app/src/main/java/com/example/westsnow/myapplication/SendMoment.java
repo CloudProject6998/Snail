@@ -460,12 +460,15 @@ import java.io.File;
 public class SendMoment extends ActionBarActivity {
 
     private String username;
+    private String routeID;
     private EditText context;
     static final int RESULT_LOAD_IMG = 1;
     static final int REQUEST_IMAGE_CAPTURE = 2;
     private int serverResponseCode = 0;
     private ProgressDialog dialog = null;
     String imgDecodableString;
+
+
 
     private ProgressDialog pDialog;
     JSONParser jsonParser = new JSONParser();
@@ -576,7 +579,7 @@ public class SendMoment extends ActionBarActivity {
                 //add parameter routeId
                 dos.writeBytes("Content-Disposition: form-data; name=\"routeId\"" + lineEnd);
                 dos.writeBytes(lineEnd);
-                dos.writeBytes("37"); // mobile_no is String variable
+                dos.writeBytes(routeID); // mobile_no is String variable
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
 
@@ -675,6 +678,9 @@ public class SendMoment extends ActionBarActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        routeID = intent.getStringExtra("routeID");
+        Log.d("SendMomentGetRouteID",String.valueOf(routeID));
+
 
         icon = (ImageView) findViewById(R.id.open_image_from_disk_icon);
         icon.setOnClickListener(new View.OnClickListener() {
