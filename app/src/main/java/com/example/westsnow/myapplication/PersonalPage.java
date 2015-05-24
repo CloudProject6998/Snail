@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PersonalPage extends CurLocaTracker {
     private String m_username;
-    private String momentSent = null;
+    private String pageName = null;
     private final android.os.Handler handle = new Handler();
     public int m_drawLineType = 3; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
@@ -59,12 +59,14 @@ public class PersonalPage extends CurLocaTracker {
         // sending pid to next activity
         in.putExtra("username", username);
         in.putExtra("routeID",String.valueOf(routeID));
+        in.putExtra("curlat",m_LastLocation.getLatitude());
+        in.putExtra("curlng",m_LastLocation.getLongitude());
         // starting new activity
         startActivity(in);
     }
 
     public void PopSendMenu(View view) {
-        android.widget.PopupMenu popup = new android.widget.PopupMenu(this,view);
+        android.widget.PopupMenu popup = new android.widget.PopupMenu(this, view);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.menu_send_popup, popup.getMenu());
 
@@ -208,7 +210,7 @@ public class PersonalPage extends CurLocaTracker {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
-        momentSent = intent.getStringExtra("momentSent");
+        pageName = intent.getStringExtra("pageName");
 
         double lat = intent.getDoubleExtra("curlat", 0);
         double lng = intent.getDoubleExtra("curlng", 0);
@@ -223,33 +225,10 @@ public class PersonalPage extends CurLocaTracker {
         m_map = mapFragment.getMap();
 
         buildGoogleApiClient();
-        if ((momentSent != null)){
-            System.out.println("[After send moment Not null] !");
-            addMomentMarker(newCurLoca); // add moment marker
-
-            MapUtil util = MapUtil.getInstance();
-            util.drawGoogleRoutes(MapUtil.m_googleRoutes, m_map, 1); // add google route searched before
-
-            //add recommended route
-            Route route = new Route();
-            List<Long> prevRecomRoutes = Route.m_recomRoutes;
-            try{
-            if (prevRecomRoutes != null) {
-                for (int i = 0; i < prevRecomRoutes.size(); i++) {
-                    List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
-                    if (routePoints != null) {
-                        util.drawGoogleRoutes(routePoints, m_map, 3);
-                    }
-                }
-            }
-            }catch (ExecutionException e) {
-                e.printStackTrace();
-            }catch (InterruptedException e) {
-                e.printStackTrace();
-            }catch(JSONException e) {
-                e.printStackTrace();
-            }
-
+        if ((pageName != null)){
+                System.out.println("[After send photo] !");
+                addMomentMarker(newCurLoca); // add moment marker
+                drawExistedLines();
         }
     }
     @Override
@@ -278,5 +257,30 @@ public class PersonalPage extends CurLocaTracker {
             startActivity(in);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void drawExistedLines(){
+        MapUtil util = MapUtil.getInstance();
+        util.drawGoogleRoutes(MapUtil.m_googleRoutes, m_map, 1); // add google route searched before
+
+        //add recommended route
+        Route route = new Route();
+        List<Long> prevRecomRoutes = Route.m_recomRoutes;
+        try{
+            if (prevRecomRoutes != null) {
+                for (int i = 0; i < prevRecomRoutes.size(); i++) {
+                    List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
+                    if (routePoints != null) {
+                        util.drawGoogleRoutes(routePoints, m_map, 3);
+                    }
+                }
+            }
+        }catch (ExecutionException e) {
+            e.printStackTrace();
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch(JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

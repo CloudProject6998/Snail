@@ -66,8 +66,8 @@ public class SendMoment extends ActionBarActivity {
     private int serverResponseCode = 0;
     private ProgressDialog dialog = null;
     String imgDecodableString;
-
-
+    public double curLat;
+    public double curLng;
 
     private ProgressDialog pDialog;
     JSONParser jsonParser = new JSONParser();
@@ -315,6 +315,9 @@ public class SendMoment extends ActionBarActivity {
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         routeID = intent.getStringExtra("routeID");
+
+        curLat = intent.getDoubleExtra("curlat", 0);
+        curLng = intent.getDoubleExtra("curlng",0);
         Log.d("SendMomentGetRouteID",String.valueOf(routeID));
 
 
@@ -563,7 +566,7 @@ public class SendMoment extends ActionBarActivity {
         } else if (id == R.id.home) {
             Intent intent = new Intent(this, PersonalPage.class);
             intent.putExtra("username", username);
-            intent.putExtra("pageName","sendPhoto");
+            intent.putExtra("pageName","sendPhoto"); //Todo
             startActivity(intent);
         }
 
