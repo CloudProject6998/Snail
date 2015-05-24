@@ -30,6 +30,7 @@ public class Route {
             double minone = Double.MAX_VALUE;
             double mintwo = Double.MAX_VALUE;
             double minthree = Double.MAX_VALUE;
+            double distanceThreshold = 10^-8;
             long one = 0;
             long two = 0;
             long three = 0;
@@ -40,6 +41,10 @@ public class Route {
                 for (int i = 0; i < StartEndPairs.length(); i++) {
                     JSONObject c = StartEndPairs.getJSONObject(i);
                     String routeID = c.getString("routeID");
+
+                    JSONArray posPairs = db.getRoute(routeID.toString());
+                    if((posPairs == null) || (posPairs.length() == 0))
+                        continue;
                     String userName = c.getString("userName");
                     double sLatt = Double.valueOf(c.getString("sLatt"));
                     double sLong = Double.valueOf(c.getString("sLong"));
@@ -48,6 +53,8 @@ public class Route {
                     int count = Integer.valueOf(c.getString("count"));
                     double distance = Math.sqrt(Math.pow(startlat - sLatt, 2) + Math.pow(startlong - sLong, 2)) + Math.sqrt(Math.pow(deslat - eLatt, 2) + Math.pow(deslong - eLong, 2));
                     double crt = distance * Dweight - count * Cweight;
+                    if(crt < distanceThreshold)
+                        continue;
 
                     if (crt < minone) {
                         minone = crt;

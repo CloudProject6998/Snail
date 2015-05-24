@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.util.Log;
 
+import com.example.westsnow.util.Route;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
@@ -29,8 +30,7 @@ public class PersonalPage extends CurLocaTracker {
     private String m_username;
     private String momentSent = null;
     private final android.os.Handler handle = new Handler();
-    private Polyline m_polyline = null;
-    public int m_drawLineType = 1; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
+    public int m_drawLineType = 3; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
     public Location momentLoc ;
 
@@ -53,7 +53,7 @@ public class PersonalPage extends CurLocaTracker {
     public void trackRoute(View view) throws JSONException, ExecutionException, InterruptedException{
         startTracker();
         getCurLocation();
-        //db = new dbUtil();
+
         db = dbUtil.getInstance();
 
         final EditText startText = (EditText)findViewById(R.id.start);
@@ -61,7 +61,7 @@ public class PersonalPage extends CurLocaTracker {
 
         String startValue = startText.getText().toString();
         String endValue = endText.getText().toString();
-        double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(this,startValue,endValue,m_LastLocation);
+        double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(this, startValue, endValue, m_LastLocation);
         Route route = new Route();
 
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
@@ -70,6 +70,7 @@ public class PersonalPage extends CurLocaTracker {
 
     public void GetRouteValue(View view) {
         // Update Location in time
+        startTracker();
         getCurLocation();
 
         final EditText startText = (EditText)findViewById(R.id.start);
@@ -97,61 +98,58 @@ public class PersonalPage extends CurLocaTracker {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                try {
-                    final List<LatLng> routes = util.getGoogleRoutes(startPosName, endPosName);
-                    if(routes == null){
-                        throw new SnailException(SnailException.EX_DESP_NoInternet);
+            try {
+                final List<LatLng> routes = util.getGoogleRoutes(startPosName, endPosName);
+                if(routes == null){
+                    throw new SnailException(SnailException.EX_DESP_NoInternet);
+                }
+                // get Googlemap's routes
+                handle.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        m_drawLineType = 2;
+                        util.drawGoogleRoutes(routes,m_map,m_drawLineType);
                     }
-                    // get Googlemap's routes
-                    handle.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            util.drawGoogleRoutes(routes,m_map,m_drawLineType);
+                });
+                Route route = new Route();
+                double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
+                List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+
+                if (recommendedRoutes != null) {
+                    for (int i = 0; i < recommendedRoutes.size(); i++) {
+                        final List<LatLng> routePoints = route.routePoints(recommendedRoutes.get(i));
+
+                        if (routePoints != null) {
+                            handle.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    m_drawLineType = 3;
+                                    util.drawGoogleRoutes(routePoints, m_map, m_drawLineType);
+                                }
+                            });
                         }
-                    });
-
-                    //Todo 2: get friends' recommended routes
-                    Route route = new Route();
-                    double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
-                    List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
-
-                    if (recommendedRoutes != null) {
-                        for (int i = 0; i < recommendedRoutes.size(); i++) {
-                            final List<LatLng> routePoints = route.routePoints(recommendedRoutes.get(i));
-
-                            if (routePoints != null) {
-                                handle.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        m_drawLineType = 3;
-                                        util.drawGoogleRoutes(routePoints, m_map, m_drawLineType);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                    //Todo 3: get startloc, endloc
-                    GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
-                }catch (ExecutionException e) {
-                    e.printStackTrace();
-                }catch (InterruptedException e) {
-                    e.printStackTrace();
-                }catch(JSONException e){
-                    e.printStackTrace();
-                }catch(SnailException e){
-                    if(e.getExDesp().equals(SnailException.EX_DESP_PathNotExist)){
-                        System.out.println("Path not exist");
-                        Looper.prepare();
-                        Toast.makeText(PersonalPage.this, "No path exists! Please re-search!", Toast.LENGTH_LONG).show();
-                        Looper.loop();
-                    }
-                    else if(e.getExDesp().equals(SnailException.EX_DESP_NoInternet)){
-                        System.out.println("No internet");
-                        Looper.prepare();
-                        Toast.makeText(PersonalPage.this, "No Internet! Please connect internet!", Toast.LENGTH_LONG).show();
-                        Looper.loop();
                     }
                 }
+                GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
+            }catch (ExecutionException e) {
+                e.printStackTrace();
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }catch(JSONException e){
+                e.printStackTrace();
+            }catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_PathNotExist)) {
+                    System.out.println("Path not exist");
+                    Looper.prepare();
+                    Toast.makeText(PersonalPage.this, "No path exists! Please re-search!", Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                } else if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    System.out.println("No internet");
+                    Looper.prepare();
+                    Toast.makeText(PersonalPage.this, "No Internet! Please connect internet!", Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                }
+            }
             }
         }).start();
     }
@@ -182,14 +180,6 @@ public class PersonalPage extends CurLocaTracker {
             System.out.println("[After send moment Not null] !");
             addMomentMarker(newCurLoca);
         }
-
-        //3) GeoCoding
-        // Todo 4: after clicking button, get requested locationName, and request latitude, longtitude
-        /*
-        String locationName = "600 Independence Ave SW, Washington, DC 20560";
-        GeoCodeRequester codeRequester = GeoCodeRequester.getInstance();
-        codeRequester.getGeoLocation(this,locationName);
-        */
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -218,6 +208,5 @@ public class PersonalPage extends CurLocaTracker {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 }

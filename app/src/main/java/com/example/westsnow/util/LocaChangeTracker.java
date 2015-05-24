@@ -14,30 +14,31 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.westsnow.util.Route;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-
 /**
  * Created by yingtan on 5/18/15.
  */
 public class LocaChangeTracker extends CurLocaTracker{
 
     private static final String TAG = "GpsActivity";
-    private static final double DIST_DIFF_THRESHOLD = 0.0000000007; //0.000007
+    private static final double DIST_DIFF_THRESHOLD = 7E-4; //0.000007   0.0000000007
+    private static final double RECORD_ROUTE_THRESHOLD = 7E-7; //0.000007   0.0000000007
     private static final int DIST_INTERVAL = 10000; // 1m:1000
-    private static final int TIME_INTERVAL = 15; // 30s:30
-
+    private static final int TIME_INTERVAL = 30; // 30s:30
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
 
+
     public Location m_LastLocation;
     public LocationManager m_manager;
+    public static List<LatLng> m_routes = new ArrayList<LatLng>();
 
 
     public LocaChangeTracker(CurLocaTracker locaTracker){
@@ -59,35 +60,38 @@ public class LocaChangeTracker extends CurLocaTracker{
 
     private LocationListener locationListener = new LocationListener(){
 
-        public void onLocationChanged(Location location) {
+        public void onLocationChanged(Location location){
             try {
                 if (location == null) {
                     throw new SnailException(SnailException.EX_DESP_LocationNotExist); // ??
                 }
+
+                LatLng lastLocation = new LatLng(m_LastLocation.getLatitude(),m_LastLocation.getLongitude());
+                LatLng curLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                LatLng loc = new LatLng(location.getLatitude(),location.getLongitude());
                 if(m_endLocation != null){
+                    System.out.println("************** [Listener Get End Pos]"+m_endLocation.latitude+" ,"+m_endLocation.longitude);
+                    System.out.println("************** [Listener Get cur Pos]"+location.getLatitude()+" ,"+location.getLongitude());
 
-                    System.out.println("[Listener Get End Pos]"+m_endLocation.latitude+" ,"+m_endLocation.longitude);
-                    System.out.println("[Listener Get cur Pos]"+location.getLatitude()+" ,"+location.getLongitude());
-
-                    if(ifReachDestination(location,m_endLocation)){
+                    int flag = ifReachDestination(location, lastLocation);
+                    if(flag == 2){
+                        System.out.println("************** Add Route ! **************");
+                        m_routes.add(loc); // enhance
+                    }
+                    else if(flag == 1){
                         System.out.println("************** Reach Destination ! **************");
+                        m_routes =  new ArrayList<LatLng>();
                         m_manager.removeGpsStatusListener(listener);
-                        //m_manager.removeUpdates(locationListener);
+                        m_manager.removeUpdates(locationListener);
+
                         return;
                     }
                 }
                 System.out.println("location changed!");
-
-                LatLng lastLocation = new LatLng(m_LastLocation.getLatitude(),m_LastLocation.getLongitude());
-                LatLng curLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
                 //display a point to move
-                if ((m_LastMarker == null)) {
-                    throw new NullPointerException();
+                if ((m_LastMarker != null)) {
+                    m_LastMarker.remove();
                 }
-                m_LastMarker.remove();
-                //m_LastMarker.setVisible(false);
-
                 m_LastMarker = m_map.addMarker(new MarkerOptions()
                         .title("Current Location")
                         .snippet("The most populous city in")
@@ -109,10 +113,10 @@ public class LocaChangeTracker extends CurLocaTracker{
 
                 m_LastLocation = location;
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch(SnailException e){
+            }catch(SnailException e){
                 System.out.println(SnailException.EX_DESP_LocationNotExist);
+            }catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
@@ -147,7 +151,6 @@ public class LocaChangeTracker extends CurLocaTracker{
                     break;
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                     System.out.println("GPS_EVENT_SATELLITE_STATUS!");
-
                     //test code
                     /*
                     //m_manager.removeGpsStatusListener(listener);
@@ -241,7 +244,7 @@ public class LocaChangeTracker extends CurLocaTracker{
         return criteria;
     }
 
-    public boolean ifReachDestination(Location curLocation, LatLng destLocation){
+    public int ifReachDestination(Location curLocation, LatLng destLocation){
         double curLat = curLocation.getLatitude();
         double curLng = curLocation.getLongitude();
 
@@ -250,10 +253,15 @@ public class LocaChangeTracker extends CurLocaTracker{
 
         double latDiff = Math.abs(curLat - destLat);
         double lngDiff = Math.abs(curLng - desLng);
+        System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
+        if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
+            System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
+            return 1; // stop
+        }
+        else if((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) // keep record
+            return 2;
 
-        if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD))
-            return true;
-        return false;
+        return 3;
     }
 
     @Override

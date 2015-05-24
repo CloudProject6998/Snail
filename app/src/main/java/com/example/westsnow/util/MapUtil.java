@@ -113,7 +113,6 @@ public class MapUtil {
     }
 
     public List<LatLng> getGoogleRoutes(String origin, String destination) throws SnailException, JSONException {
-        //String url ="https://maps.googleapis.com/maps/api/directions/json?origin=Queens&destination=Brooklyn&key="+API_KEY;
         List<LatLng> routes = null;
         try {
             String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + "&mode=driving&key=" + API_KEY;
@@ -148,8 +147,6 @@ public class MapUtil {
     */
 
     private List<LatLng> parseGoogleRoute(JSONObject jObject) throws SnailException{
-
-        //List<List<LatLng>> routes = new ArrayList<List<LatLng>>();
         List<LatLng> routes = new ArrayList<LatLng>();
         JSONArray jRoutes = null;
         JSONArray jLegs = null;
@@ -192,8 +189,6 @@ public class MapUtil {
                         String polyline = "";
                         polyline = (String)((JSONObject)(jStep).get("polyline")).get("points");
                         List<LatLng> localist = decodePath(polyline, 10,routes);
-
-                        //routes.add(localist);
                     }
                 }
             }
@@ -255,19 +250,33 @@ public class MapUtil {
 
     public void drawGoogleRoutes(List<LatLng> routes, GoogleMap map, int lineType) {
 
+        //int green = (int) ((float) 255 - (float) (i / (float) size) * (float) 255);
+        //int red = (int) ((float) 0 + (float) (i / (float) size) * (float) 255);
+
         PolylineOptions polyLineOptions = new PolylineOptions();
-        if ((lineType == 1) || (lineType == 3)) { //draw friend's line or google line
+        if (lineType == 1) { //draw friend's line or google line
             for (LatLng route : routes) {
                 polyLineOptions.add(route);
-                polyLineOptions.width(10);
-                polyLineOptions.color(Color.RED);
+                polyLineOptions.width(6);
+                polyLineOptions.geodesic(true);
+                polyLineOptions.color(Color.rgb(255, 51, 51));
+
             }
         }
         else if(lineType == 2){// draw previous line
             for (LatLng route : routes) {
                 polyLineOptions.add(route);
-                polyLineOptions.width(10);
-                polyLineOptions.color(Color.BLUE);
+                polyLineOptions.width(6);
+                polyLineOptions.color(Color.rgb(52, 148, 222));
+                polyLineOptions.geodesic(true);
+
+            }
+        } else if (lineType == 3){
+            for (LatLng route : routes) {
+                polyLineOptions.add(route);
+                polyLineOptions.width(6);
+                polyLineOptions.color(Color.rgb(255, 128, 0));
+                polyLineOptions.geodesic(true);
             }
         }
         LatLng startPos = null;
@@ -278,7 +287,6 @@ public class MapUtil {
 
         m_polyline = map.addPolyline(polyLineOptions);
         System.out.println("Start !!!! add poly "+polyLineOptions.toString());
-
     }
 
     public String formatInputLoca(String inputLoca){

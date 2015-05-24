@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import android.content.Context;
+import android.location.Address;
 import android.location.*;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * Created by yingtan on 5/19/15.
  */
-public class GeoCodeRequester{
+public class GeoCodeRequester {
 
     public JSONObject m_jsonObj;
     public String m_returnedJson;
@@ -30,6 +31,8 @@ public class GeoCodeRequester{
         }
         return m_instance;
     }
+
+
 
     public LatLng getGeoLocation(Context context, String locationName){
         double latitude;
@@ -73,7 +76,6 @@ public class GeoCodeRequester{
             startLoca = getGeoLocation(context, startPosName);
             startEndLocs[0] = startLoca.latitude;
             startEndLocs[1] = startLoca.longitude;
-
         }
 
         String endPosName = util.formatInputLoca(endValue);
@@ -92,8 +94,8 @@ public class GeoCodeRequester{
         LocaChangeTracker.m_endLocation = endLoca;
         CurLocaTracker.m_startLocation = startLoca;
         CurLocaTracker.m_endLocation = endLoca;
-
     }
+
 
 
 }
