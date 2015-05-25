@@ -70,15 +70,16 @@ public class HomePage extends ListActivity {
     };
 
     Integer[] imgid={
-            R.drawable.contact_icon_me,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
-            R.drawable.contact_icon,
+            R.drawable.contact1,
+            R.drawable.contact2,
+            R.drawable.contact3,
+            R.drawable.contact4,
+            R.drawable.contact5,
+            R.drawable.contact6,
+            R.drawable.contact7,
+            R.drawable.contact8,
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

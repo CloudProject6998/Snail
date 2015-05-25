@@ -36,6 +36,9 @@ public class PersonalPage extends CurLocaTracker {
 
     public Location momentLoc ;
 
+    public static boolean visible = false;
+
+
     public void SendPhoto() {
         Intent in = new Intent(getApplicationContext(),
                 SendMoment.class);
@@ -109,6 +112,7 @@ public class PersonalPage extends CurLocaTracker {
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
 
         Log.d("getRouteID", String.valueOf(routeID));
+        visible = true;
         View b = findViewById(R.id.sendButton);
         b.setVisibility(View.VISIBLE);
     }
@@ -207,8 +211,10 @@ public class PersonalPage extends CurLocaTracker {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_page);
 
-        View b = findViewById(R.id.sendButton);
-        b.setVisibility(View.GONE);
+        if (visible == false) {
+            View b = findViewById(R.id.sendButton);
+            b.setVisibility(View.GONE);
+        }
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");

@@ -7,8 +7,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -161,6 +163,11 @@ public class TimeLine extends ListActivity {
                 public void run() {
                     timelineAdapter = new TimelineAdapter(TimeLine.this, list);
                     lv.setAdapter(timelineAdapter);
+
+                    lv = getListView();
+                    LayoutInflater inflater = getLayoutInflater();
+                    View header = inflater.inflate(R.layout.header, lv, false);
+                    lv.addHeaderView(header, null, false);
                 }
             });
         }

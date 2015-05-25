@@ -36,11 +36,11 @@ public class MainActivity extends ActionBarActivity {
     private EditText Password;
     // Progress Dialog
     private ProgressDialog pDialog;
-    //JSON parser class
+    // JSON parser class
     JSONParser jsonParser = new JSONParser();
 
     private static final String LOGIN_URL = Constant.serverDNS + "/login.php";
-//    private static final String LOGIN_URL = "http://ec2-52-24-240-104.us-west-2.compute.amazonaws.com/login.php";
+    // private static final String LOGIN_URL = "http://ec2-52-24-240-104.us-west-2.compute.amazonaws.com/login.php";
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
