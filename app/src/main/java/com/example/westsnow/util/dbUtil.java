@@ -26,6 +26,7 @@ public class dbUtil {
     private static final String getPosURL = Constant.serverDNS + "/getroute.php";
     private static final String addStartEndURL = Constant.serverDNS + "/addStartEnd.php";
     private static final String getStartEndURL = Constant.serverDNS + "/getStartEnd.php";
+    private static final String getImgURL =  Constant.serverDNS + "/getImgUrl.php";
 
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
@@ -55,6 +56,59 @@ public class dbUtil {
 
         return m_instance;
     }
+
+    public String getImgUrl(String username, double latitude, double longitude) throws ExecutionException, InterruptedException {
+
+        String imgURL = null;
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(username);
+        passing.add(String.valueOf(latitude));
+        passing.add(String.valueOf(longitude));
+        imgURL = new AttemptGetImgUrl().execute(passing).get();
+        if (imgURL != null)
+            Log.d("dbReturnURL",imgURL);
+        return imgURL;
+    }
+
+    class AttemptGetImgUrl extends AsyncTask<ArrayList<String>, String, String> {
+
+        protected String doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0];
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("username", passed.get(0)));
+            params.add(new BasicNameValuePair("latitude", passed.get(1)));
+            params.add(new BasicNameValuePair("longitude", passed.get(2)));
+            JSONObject json = jParser.makeHttpRequest(getImgURL, "GET", params);
+            Log.d("doinback",json.toString());
+            try {
+                int success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("success whether","yes");
+                    JSONArray ret = json.getJSONArray("imgURL");
+                    Log.d("jsonArray",ret.toString());
+                    if (ret.length() == 0) {
+                        return null;
+                    } else {
+                        return ret.getString(0);
+                    }
+                } else {
+                    Log.d("success whether","no");
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                Log.d("dbUtil imgUrl:", result);
+            }
+        }
+
+    }
+
 
     /*
         http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/addpos.php?routeID=1&latt=40.809778&long=-73.961387
@@ -118,6 +172,8 @@ public class dbUtil {
             return dbUtil.StartEndPairs;
         }
     }
+
+
 
     class LoadALlStartEnd extends AsyncTask<String, String, JSONArray> {
 
@@ -262,4 +318,5 @@ public class dbUtil {
             }
         }
     }
+
 }
