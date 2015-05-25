@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="70dip"
+    android:layout_height="120dip"
     android:padding="6dip"
     android:orientation="horizontal" >
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="57dp"
-        android:layout_height="57dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="1.7dip"
+        android:layout_marginLeft="20dip"
         android:layout_marginRight="6dip"
-        android:src="@mipmap/contact_icon" />
+        android:src="@mipmap/contact_icon"
+        android:background="@drawable/shape"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -23,19 +24,24 @@
         <TextView
             android:id="@+id/firstLine"
             android:layout_width="fill_parent"
-            android:layout_height="30dip"
+            android:layout_height="55dip"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
             android:layout_toRightOf="@id/icon"
             android:gravity="center_vertical"
+            android:layout_marginLeft="40dp"
             android:text="Unknown"
             android:textStyle="bold"
-            android:textSize="20sp" />
+            android:typeface="serif"
+            android:textSize="30sp"
+            android:textColor="#FFEEDD" />
+
         <TextView
             android:id="@+id/secondLine"
             android:layout_width="fill_parent"
-            android:layout_height="26dip"
+            android:layout_height="45dip"
+            android:layout_marginLeft="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@id/icon"
@@ -43,6 +49,8 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:text="Email Address"
-            android:textSize="17sp" />
+            android:textSize="25sp"
+            android:typeface="serif"
+            android:textColor="#FFEEDD" />
     </LinearLayout>
 </LinearLayout>

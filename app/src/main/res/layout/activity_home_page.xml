@@ -1,89 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent">
+    android:background="@drawable/background2">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:orientation="horizontal">
-    <EditText
-        android:id="@+id/email"
-        android:hint="enter new friend email"
-        android:layout_weight="1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
-    <Button
-        android:id="@+id/signInButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:onClick="addFriend"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp" />
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/email"
+            android:hint="Enter New Friend Email"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:textColorHint="@color/lightyellow"
+            android:textSize="25sp"
+            style="@style/EditTextCustomHolo" />
+
+        <Button
+            android:id="@+id/signInButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:textSize="25sp"
+            android:onClick="addFriend"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/shape"
+            android:textColor="@color/lightyellow"/>
+
     </LinearLayout>
 
-    <!-- Header -->
-    <!--
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/header"
+
+    <View
+        android:id="@+id/view"
         android:layout_width="fill_parent"
-        android:layout_height="70dip"
-        android:padding="6dip" >
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="60dip"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="6dip"
-            android:contentDescription="TODO"
-            android:src="@mipmap/contact_icon_me" />
-        <TextView
-            android:id="@+id/secondLine"
-            android:layout_width="fill_parent"
-            android:layout_height="26dip"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@id/icon"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:text="qqq@163.com"
-            android:textSize="17sp" />
-        <TextView
-            android:id="@+id/firstLine"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/secondLine"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_toRightOf="@id/icon"
-            android:gravity="center_vertical"
-            android:text="My profile"
-            android:textStyle="bold"
-            android:textSize="20sp" />
-    </RelativeLayout>
-    -->
-    <!-- List Divider -->
-    <View android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:background="?android:attr/listDivider" />
+        android:layout_height="2dip"
+        android:background="?android:attr/listDivider"
+        android:layout_below="@+id/linear"/>
 
     <!-- ListView (grid_items) -->
     <ListView android:id="@android:id/list"
         android:layout_height="fill_parent"
-        android:layout_width="fill_parent">
-    </ListView>
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/view" />
 
-
-</LinearLayout>
-
+</RelativeLayout>

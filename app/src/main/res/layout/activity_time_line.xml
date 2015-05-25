@@ -7,15 +7,22 @@
          Always give id value as list(@android:id/list)
     -->
 
+
     <TextView
-        android:text="Name"
-        android:layout_gravity="center"
-        android:gravity="center"
+        android:id="@+id/timeline"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:text="Timeline"
+        android:layout_weight="0.6"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        android:background="#000000"/>
+
+    <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="56dp"
-        android:textSize="45dp"
-        android:background="@drawable/headline"
-        />
+        android:layout_height="wrap_content"
+        android:id="@+id/header"/>
 
     <ListView
         android:id="@android:id/list"
