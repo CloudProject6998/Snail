@@ -57,7 +57,63 @@ public class dbUtil {
         return m_instance;
     }
 
-    public  JSONObject getImgUrl(String username, double latitude, double longitude) throws ExecutionException, InterruptedException {
+    public JSONArray getMarkerList(String routeID) throws ExecutionException, InterruptedException {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(routeID);
+        return new LoadMakerByRoute().execute(passing).get();
+
+    }
+
+    class LoadMakerByRoute extends AsyncTask<ArrayList<String>, String,  JSONArray> {
+
+        protected  JSONArray doInBackground(ArrayList<String>... passing) {
+            //http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/getMarker.php?routeID=237
+            /*
+            {
+                markerInfo: [
+                    {
+                        latitude: "40.8090246",
+                        longitude: "-73.9592641",
+                        context: "current ",
+                        imageLocation: "image/09d8db600a7972ad7099c8317709e343"
+                    }
+                ],
+                success: 1,
+                message: "get maker info success"
+            }
+             */
+            ArrayList<String> passed = passing[0];
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("routeID", passed.get(0)));
+            String getMakerURL = Constant.serverDNS + "/getMarker.php";
+            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+
+            Log.d("GetMakerHttp",json.toString());
+            try {
+                int success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("success","yes");
+                    JSONArray markerInfo = json.getJSONArray("markerInfo");
+                    Log.d("jsonArray",markerInfo.toString());
+                    if (markerInfo.length() == 0) {
+                        return null;
+                    } else {
+                        return markerInfo;
+                    }
+                } else {
+                    Log.d("success","no");
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+    }
+
+
+    public JSONObject getImgUrl(String username, double latitude, double longitude) throws ExecutionException, InterruptedException {
 
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(username);
