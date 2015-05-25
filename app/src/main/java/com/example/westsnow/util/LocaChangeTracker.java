@@ -29,7 +29,7 @@ public class LocaChangeTracker extends CurLocaTracker{
     private static final String TAG = "GpsActivity";
     private static final double DIST_DIFF_THRESHOLD = 7E-6; //0.000007   0.0000000007
     private static final double RECORD_ROUTE_THRESHOLD = 7E-6; //0.000007   0.0000000007
-    private static final int DIST_INTERVAL = 10; // 1m:1000
+    private static final int DIST_INTERVAL = 1000; // 1m:1000
     private static final int TIME_INTERVAL = 1; // 30s:30
 
     public static LatLng m_startLocation;
@@ -231,7 +231,7 @@ public class LocaChangeTracker extends CurLocaTracker{
             //startActivityForResult(intent, 0);
             return;
         }
-        //String bestProvider = lm.getBestProvider(getCriteria(), true);
+        String bestProvider = m_manager.getBestProvider(getCriteria(), true);
         m_manager.addGpsStatusListener(listener);
         m_manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DIST_INTERVAL, TIME_INTERVAL, locationListener);
 
