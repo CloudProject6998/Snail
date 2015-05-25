@@ -9,8 +9,8 @@
                 android:endColor="@color/white"
                 android:angle="270" />
             <!--<stroke-->
-                <!--android:width="3dp"-->
-                <!--android:color="@color/white" />-->
+            <!--android:width="3dp"-->
+            <!--android:color="@color/white" />-->
             <corners
                 android:radius="3dp" />
             <padding
@@ -44,11 +44,11 @@
         <shape>
             <gradient
                 android:startColor="@color/white"
-                android:endColor="@color/blue"
+                android:endColor="@color/orange"
                 android:angle="270" />
             <!--<stroke-->
-                <!--android:width="3dp"-->
-                <!--android:color="@color/white" />-->
+            <!--android:width="3dp"-->
+            <!--android:color="@color/white" />-->
             <corners
                 android:radius="3dp" />
             <padding
