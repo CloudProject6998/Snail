@@ -57,39 +57,41 @@ public class dbUtil {
         return m_instance;
     }
 
-    public String getImgUrl(String username, double latitude, double longitude) throws ExecutionException, InterruptedException {
+    public  JSONObject getImgUrl(String username, double latitude, double longitude) throws ExecutionException, InterruptedException {
 
-        String imgURL = null;
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(username);
         passing.add(String.valueOf(latitude));
         passing.add(String.valueOf(longitude));
-        imgURL = new AttemptGetImgUrl().execute(passing).get();
-        if (imgURL != null)
-            Log.d("dbReturnURL",imgURL);
-        return imgURL;
+        JSONObject ret = new AttemptGetImgUrl().execute(passing).get();
+        return ret;
     }
 
-    class AttemptGetImgUrl extends AsyncTask<ArrayList<String>, String, String> {
+    class AttemptGetImgUrl extends AsyncTask<ArrayList<String>, String,  JSONObject> {
 
-        protected String doInBackground(ArrayList<String>... passing) {
+        protected  JSONObject doInBackground(ArrayList<String>... passing) {
             ArrayList<String> passed = passing[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("username", passed.get(0)));
             params.add(new BasicNameValuePair("latitude", passed.get(1)));
             params.add(new BasicNameValuePair("longitude", passed.get(2)));
             JSONObject json = jParser.makeHttpRequest(getImgURL, "GET", params);
-            Log.d("doinback",json.toString());
+
+            Log.d("GetImgJson",json.toString());
             try {
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("success whether","yes");
-                    JSONArray ret = json.getJSONArray("imgURL");
-                    Log.d("jsonArray",ret.toString());
-                    if (ret.length() == 0) {
+                    Log.d("success","yes");
+                    JSONArray moments = json.getJSONArray("moments");
+                    Log.d("jsonArray",moments.toString());
+                    if (moments.length() == 0) {
                         return null;
                     } else {
-                        return ret.getString(0);
+                        JSONObject c = moments.getJSONObject(0);
+                        //String context = c.getString("text");
+                        //String imgURL = c.getString("imgURL");
+                        return c;
+                        //return ret.getString(0);
                     }
                 } else {
                     Log.d("success whether","no");
@@ -99,12 +101,6 @@ public class dbUtil {
                 e.printStackTrace();
             }
             return null;
-        }
-
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                Log.d("dbUtil imgUrl:", result);
-            }
         }
 
     }
