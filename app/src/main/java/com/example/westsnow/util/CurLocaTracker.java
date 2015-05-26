@@ -189,7 +189,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
             m_map.addMarker(lastMomentMarkerOption);
             m_MomentMarkerOptions.add(lastMomentMarkerOption);
-
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
     }

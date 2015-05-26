@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.*;
@@ -248,7 +249,7 @@ public class MapUtil {
         return points;
     }
 
-    public void drawGoogleRoutes(List<LatLng> routes, GoogleMap map, int lineType) {
+    public void drawRoutes(List<LatLng> routes, GoogleMap map, int lineType) {
 
         if((routes == null)||(routes.size() == 0))
             return;
@@ -297,7 +298,38 @@ public class MapUtil {
         }
         map.addPolyline(polyLineOptions);
         map.addPolyline(polyLineOptions_2);
-        System.out.println("draw  poly " + polyLineOptions.toString());
+    }
+
+    public void drawExistedLines(){
+        MapUtil util = MapUtil.getInstance();
+        GoogleMap map = CurLocaTracker.m_map;
+        util.drawRoutes(MapUtil.m_googleRoutes, map, 1); // add google route searched before
+
+        //add recommended route, and tracked routes
+        Route route = new Route();
+        List<Long> prevRecomRoutes = Route.m_recomRoutes;
+        try{
+            if (prevRecomRoutes != null) {
+                for (int i = 0; i < prevRecomRoutes.size(); i++) {
+                    List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
+                    if (routePoints != null) {
+                        util.drawRoutes(routePoints, map, 3);
+                        //Todo: draw existed markers
+                    }
+                }
+            }
+            if (LocaChangeTracker.m_trackerroutes.size() > 0) {
+                System.out.println("[refill previous route !!!!]" + LocaChangeTracker.m_trackerroutes);
+                util.drawRoutes(LocaChangeTracker.m_trackerroutes, map, 2);
+                //Todo: draw tracked routes with marker
+            }
+        }catch (ExecutionException e) {
+            e.printStackTrace();
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch(JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String formatInputLoca(String inputLoca){
