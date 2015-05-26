@@ -6,20 +6,20 @@
     android:paddingRight="16dp"
     android:orientation="vertical"
     tools:context=".SendText"
-    android:background="@drawable/background3">
+    android:background="@drawable/background4">
 
     <EditText
         android:id="@+id/context"
         android:hint="Input Your Moments"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_margin="50dp"
+        android:layout_margin="30dp"
         android:layout_gravity="center"
         android:gravity="top"
         android:inputType="textMultiLine"
-        android:textColorHint="#3C3C3C"
+        android:textColorHint="@color/white"
         android:textSize="25sp"
-        android:background="@drawable/shape_semi"
+        android:background="@drawable/shape_trans2"
         android:ems="10" >
 
         <requestFocus />

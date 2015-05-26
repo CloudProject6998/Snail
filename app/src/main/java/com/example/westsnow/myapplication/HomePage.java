@@ -65,13 +65,13 @@ public class HomePage extends ListActivity {
 
     String[] itemname ={
             "My Profile",
-            "BBBBB",
-            "cccc",
-            "ddd",
-            "EEE",
-            "ffff",
-            "GGGGG",
-            "H"
+            "Oguri Shun",
+            "Sharon",
+            "Roger Federer",
+            "Dean",
+            "Catherina",
+            "Belinda",
+            "Ian"
     };
 
     Integer[] imgid={
@@ -217,7 +217,7 @@ public class HomePage extends ListActivity {
                     JSONArray friends = json.getJSONArray(TAG_USER);
 
                     // looping through All Products
-                    for (int i = 0; i < friends.length(); i++) {
+                    for (int i = 1; i < friends.length(); i++) {
                         JSONObject c = friends.getJSONObject(i);
 
                         // Storing each json item in variable

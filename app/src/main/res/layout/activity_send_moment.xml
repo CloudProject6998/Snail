@@ -4,7 +4,7 @@
     android:orientation="horizontal"
     android:focusable="false"
     android:focusableInTouchMode="false"
-    android:background="@drawable/background3">
+    android:background="@drawable/background4">
 
     <!--<RelativeLayout-->
         <!--android:id="@+id/relative"-->
@@ -51,8 +51,8 @@
     <RelativeLayout
         android:id="@+id/photoarea"
         android:layout_marginTop="50dp"
-        android:layout_width="500dp"
-        android:layout_height="500dp"
+        android:layout_width="450dp"
+        android:layout_height="450dp"
         android:layout_centerHorizontal="true"
         android:background="@drawable/shape_double">
 
@@ -78,8 +78,8 @@
         android:layout_below="@+id/photoarea"
         android:layout_margin="50dp"
         android:layout_weight="1"
-        android:background="@drawable/shape_semi"
-        android:textColorHint="#3C3C3C"
+        android:background="@drawable/shape_trans2"
+        android:textColorHint="@color/white"
         android:textSize="25sp"
         android:gravity="top">
     </EditText>

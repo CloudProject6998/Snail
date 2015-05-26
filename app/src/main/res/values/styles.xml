@@ -4,11 +4,16 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/white</item>
+        <item name="android:popupMenuStyle">@style/PopUpMenu</item>
     </style>
 
 
     <style name="EditTextCustomHolo" parent="android:Widget.EditText">
         <item name="android:background">@drawable/apptheme_edit_text_holo_light</item>
         <item name="android:textColor">#FFFFCC</item>
+    </style>
+
+    <style name="PopUpMenu" parent="android:style/Widget.Holo.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/shape_trans3</item>
     </style>
 </resources>

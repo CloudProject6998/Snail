@@ -1,84 +1,141 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:id="@+id/content_frame">
+    android:id="@+id/content_frame"
+    android:background="@drawable/background4" >
 
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:id="@+id/UpLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal" >
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/Location"
-            android:layout_width="471dp"
-            android:layout_height="197dp"
-            android:orientation="vertical"
-            android:layout_alignTop="@+id/enterLocation"
-            android:layout_alignLeft="@+id/imageView1"
-            android:layout_alignStart="@+id/imageView1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
+            android:orientation="horizontal"
+            android:background="@drawable/shape_trans2">
 
-            <EditText
-                android:id="@+id/start"
-                style="@style/Base.Widget.AppCompat.EditText"
-                android:hint="Current Location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <LinearLayout
+                android:id="@+id/Location"
+                android:layout_width="450dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_alignTop="@+id/enterLocation" >
+
+                <EditText
+                    android:id="@+id/start"
+                    style="@style/EditTextCustomHolo"
+                    android:hint="Current Location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_below="@+id/HomePage"
+                    android:ems="10"
+                    android:textSize="25sp"
+                    android:textColorHint="@color/grey_trans"
+                    android:textColor="@color/white"/>
+
+                <EditText
+                    android:id="@+id/des"
+                    style="@style/EditTextCustomHolo"
+                    android:hint="Destination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_below="@+id/start"
+                    android:textSize="25sp"
+                    android:textColorHint="@color/grey_trans"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/enterLocation"
                 android:layout_marginTop="40dp"
-                android:layout_marginLeft="45dp"
-                android:layout_below="@+id/HomePage"
-                android:ems="10"/>
-
-            <EditText
-                android:id="@+id/des"
-                style="@style/Base.Widget.AppCompat.EditText"
-                android:hint="destination"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:layout_marginLeft="45dp"
-                android:layout_below="@+id/start"
-                android:ems="10"/>
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/enter"
+                android:onClick="GetRouteValue"/>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/enterLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:layout_marginLeft="30dp"
-            android:src="@drawable/forward"
-            android:background="@android:color/transparent"
-            android:onClick="GetRouteValue"/>
 
     </LinearLayout>
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:name="com.google.android.gms.maps.MapFragment"
-        android:layout_below="@+id/UpLocation"/>
 
-    <ImageButton
-        android:id="@+id/sendButton"
+
+    <RelativeLayout
+        android:id="@+id/map_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@+id/UpLocation" >
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.google.android.gms.maps.MapFragment" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/addred"
-        android:layout_margin="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:background="@android:color/transparent"
-        android:onClick="PopSendMenu"/>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
 
-    <ImageButton
-        android:id="@+id/trackRoute"
-        android:src="@drawable/ic_action_person"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/sendButton"
-        android:onClick="trackRoute"/>
+        <Button
+            android:id="@+id/trackRoute"
+            android:text="Start"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/shape_red"
+            android:onClick="trackRoute"
+            android:layout_toLeftOf="@+id/sendButton"/>
+
+        <Button
+            android:id="@+id/stop"
+            android:text="Stop"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/shape_red"
+            android:onClick="stopTrack"
+            android:layout_toLeftOf="@+id/sendButton"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/sendButton"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="80dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Moments"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+
+            android:background="@drawable/shape_red"
+            android:onClick="PopSendMenu"
+            />
+
+    </RelativeLayout>
 
 </RelativeLayout>

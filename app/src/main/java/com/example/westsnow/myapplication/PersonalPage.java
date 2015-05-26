@@ -32,7 +32,11 @@ public class PersonalPage extends CurLocaTracker {
     public int m_drawLineType = 3; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
     public Location momentLoc ;
-    public static boolean visible = false;
+    public static boolean buttons_visible = false;
+    public static boolean moment_clicable = false;
+    public static boolean start_visible = true;
+    public static boolean stop_visible = false;
+    public static boolean upper_visible = true;
 
     public void SendPhoto() {
         Intent in = new Intent(getApplicationContext(),
@@ -66,6 +70,16 @@ public class PersonalPage extends CurLocaTracker {
     }
 
     public void PopSendMenu(View view) {
+        if (moment_clicable == false) {
+            System.out.println("** moment disenabled");
+            Context context = getApplicationContext();
+            CharSequence text = "Please start tracking before posting moments";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast.makeText(context,text,duration).show();
+            return;
+        }
+
         android.widget.PopupMenu popup = new android.widget.PopupMenu(this, view);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.menu_send_popup, popup.getMenu());
@@ -107,9 +121,61 @@ public class PersonalPage extends CurLocaTracker {
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
 
         Log.d("getRouteID", String.valueOf(routeID));
-        visible = true;
-        View b = findViewById(R.id.sendButton);
-        b.setVisibility(View.VISIBLE);
+
+        // set the moment button clickable
+        View moment = findViewById(R.id.sendButton);
+        if (moment_clicable == false) {
+            moment.setBackgroundResource(R.drawable.shape_red);
+            moment_clicable = true;
+        }
+
+        View stop = findViewById(R.id.stop);
+        if (view.isShown()) {
+            // set the start button invisible
+            view.setVisibility(View.GONE);
+            start_visible = false;
+            // set the stop button visible
+            stop.setVisibility(View.VISIBLE);
+            stop_visible = true;
+        }
+
+        // hide the search bar
+        View search = findViewById(R.id.UpLocation);
+        upper_visible = false;
+        search.setVisibility(View.GONE);
+    }
+
+    public void stopTrack(View view) {
+        View start = findViewById(R.id.trackRoute);
+
+        // set the stop button invisible
+        view.setVisibility(View.GONE);
+        stop_visible = false;
+
+        // set the start button visible
+        start.setVisibility(View.VISIBLE);
+        start_visible = true;
+
+        // set the moment button unclickable
+        View moment = findViewById(R.id.sendButton);
+        if (moment_clicable) {
+            moment.setBackgroundResource(R.drawable.shape_red_trans);
+            moment_clicable = false;
+        }
+
+        // show the search bar
+        View search = findViewById(R.id.UpLocation);
+        upper_visible = true;
+        search.setVisibility(View.VISIBLE);
+
+        // report to user
+        Context context = getApplicationContext();
+        CharSequence text = "Track Stopped!";
+        int duration = Toast.LENGTH_SHORT;
+        Toast.makeText(context,text,duration).show();
+
+        // todo: stop tracking manually
+
     }
 
     public void GetRouteValue(View view) {
@@ -117,6 +183,20 @@ public class PersonalPage extends CurLocaTracker {
         m_map.clear();
         getCurLocation();
         addCurMarker();
+
+        // set the buttons visible
+        View b = findViewById(R.id.buttons);
+        if (buttons_visible == false) {
+            b.setVisibility(View.VISIBLE);
+            buttons_visible = true;
+        }
+
+        // set the moment button unclickable
+        View moment = findViewById(R.id.sendButton);
+        if (moment_clicable == false) {
+            moment.setBackgroundResource(R.drawable.shape_red_trans);
+        }
+
 
         final EditText startText = (EditText)findViewById(R.id.start);
         final EditText endText = (EditText)findViewById(R.id.des);
@@ -205,10 +285,36 @@ public class PersonalPage extends CurLocaTracker {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_page);
+        View b = findViewById(R.id.buttons);
+        View moment = findViewById(R.id.sendButton);
+        View stop = findViewById(R.id.stop);
+        View start = findViewById(R.id.trackRoute);
+        View search = findViewById(R.id.UpLocation);
 
-        if(visible == false){
-            View b = findViewById(R.id.sendButton);
+        // show the buttons' according to their visibility
+        if (buttons_visible == false) {
             b.setVisibility(View.GONE);
+        } else {
+            b.setVisibility(View.VISIBLE);
+        }
+
+        // display the moment button's with its clickability
+        if (moment_clicable == false) {
+            moment.setBackgroundResource(R.drawable.shape_red_trans);
+        }
+
+        // show the stop or start button according to their visibility
+        if (stop_visible == false) {
+            stop.setVisibility(View.GONE);
+        }
+
+        if (start_visible == false) {
+            start.setVisibility(View.GONE);
+        }
+
+        // show the search bar according to its visibility
+        if (upper_visible == false) {
+            search.setVisibility(View.GONE);
         }
 
         Intent intent = getIntent();
@@ -239,6 +345,17 @@ public class PersonalPage extends CurLocaTracker {
             addExistedMarkers(prevFlag);
             MapUtil.getInstance().drawExistedLines();
 
+        } else {
+            // from sign in/register, reset the buttons (set invisible)
+            buttons_visible = false;
+            b.setVisibility(View.GONE);
+
+            moment_clicable = false;
+            start_visible = true;
+            stop_visible = false;
+
+            // from sign in/register, reset the search bar (set visible)
+            search.setVisibility(View.VISIBLE);
         }
     }
     @Override

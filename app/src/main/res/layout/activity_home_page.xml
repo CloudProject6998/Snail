@@ -4,7 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/background2">
+    android:background="@drawable/background4">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="20dp"
+        android:background="@drawable/shape_trans2">
 
     <LinearLayout
         android:id="@+id/linear"
@@ -54,5 +61,7 @@
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
         android:layout_below="@+id/view" />
+
+    </LinearLayout>
 
 </RelativeLayout>
