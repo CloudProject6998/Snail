@@ -89,7 +89,7 @@ public class TimelineAdapter extends BaseAdapter {
         viewHolder.time.setText(timeStr);
         viewHolder.imageURL=Constant.serverDNS +"/"+ imageLocation;
 
-        if( !imageLocation.equals("null"))
+        if( !imageLocation.equals("-1"))
             new DownloadAsyncTask().execute(viewHolder);
         return convertView;
     }
@@ -105,7 +105,7 @@ public class TimelineAdapter extends BaseAdapter {
                 System.out.println("viewHolder.imageURL:  "+viewHolder.imageURL);
                 viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (IOException e) {
-                // TODO: Download Image failed because of no DB connected !
+                Log.e("error",viewHolder.imageURL);
                 Log.e("error", "Downloading Image Failed");
                 viewHolder.bitmap = null;
 
