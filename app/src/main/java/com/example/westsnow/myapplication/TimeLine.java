@@ -40,6 +40,7 @@ public class TimeLine extends ListActivity {
     protected dbUtil db;
     ListView lv;
     String username;
+    String selectedUser;
     private ProgressDialog pDialog;
     ArrayList<String> momentList = new ArrayList<String>();
     JSONParser jParser = new JSONParser();
@@ -62,6 +63,7 @@ public class TimeLine extends ListActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        selectedUser = intent.getStringExtra("selectedUser");
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng", 0);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -179,7 +181,8 @@ public class TimeLine extends ListActivity {
         protected String doInBackground(String... args) {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("email", username));
+            params.add(new BasicNameValuePair("email", selectedUser));
+            Log.d("username",selectedUser);
 
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
