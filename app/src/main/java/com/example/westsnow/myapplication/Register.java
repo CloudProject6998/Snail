@@ -2,6 +2,7 @@ package com.example.westsnow.myapplication;
 
 import com.example.westsnow.util.*;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -65,6 +66,10 @@ public class Register extends ActionBarActivity {
         Username=(EditText)findViewById(R.id.username);
         Password=(EditText)findViewById(R.id.password);
         PasswordConfirm = (EditText)findViewById(R.id.passwordconfirm);
+
+        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
+        CurLocaTracker.m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
 
     }
 

@@ -80,7 +80,6 @@ public class HomePage extends ListActivity {
             R.drawable.contact8,
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

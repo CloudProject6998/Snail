@@ -84,9 +84,10 @@ public class SendText extends Activity {
             //NavUtils.navigateUpFromSameTask(this);
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName","sendTextNull"); //Todo
+            upIntent.putExtra("pageName","sendTextNull");
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
+            upIntent.putExtra("routeID",routeID);
             NavUtils.navigateUpTo(this, upIntent);
             return true;
         }
@@ -117,10 +118,9 @@ public class SendText extends Activity {
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("userid", username));
                 params.add(new BasicNameValuePair("context", context.getText().toString()));
-                params.add(new BasicNameValuePair("latitude", "0.0"));
-                params.add(new BasicNameValuePair("longtitude", "0.0"));
-                params.add(new BasicNameValuePair("routeId", "0.0"));
-
+                params.add(new BasicNameValuePair("latitude", String.valueOf(curLat)));
+                params.add(new BasicNameValuePair("longtitude", String.valueOf(curLng)));
+                params.add(new BasicNameValuePair("routeId", routeID));
 
                 Log.d("request!", "starting");
                 JSONObject json = jsonParser.makeHttpRequest(URL, "GET", params);

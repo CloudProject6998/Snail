@@ -202,14 +202,16 @@ public class SendMoment extends Activity{
                 //add parameter latitude
                 dos.writeBytes("Content-Disposition: form-data; name=\"latitude\"" + lineEnd);
                 dos.writeBytes(lineEnd);
-                dos.writeBytes("0.0"); // mobile_no is String variable
+                //dos.writeBytes("0.0"); // mobile_no is String variable
+                dos.writeBytes(curLat + "");
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
 
                 //add parameter longtitude
                 dos.writeBytes("Content-Disposition: form-data; name=\"longtitude\"" + lineEnd);
                 dos.writeBytes(lineEnd);
-                dos.writeBytes("0.0"); // mobile_no is String variable
+                dos.writeBytes(curLng + "");
+                //dos.writeBytes("0.0"); // mobile_no is String variable
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
 
@@ -429,8 +431,6 @@ public class SendMoment extends Activity{
         alertDialog.show();
 
     }
-
-
     public void loadImagefromGallery() {
         // Create intent to Open Image applications like Gallery, Google Photos
         Intent galleryIntent = new Intent(Intent.ACTION_PICK,

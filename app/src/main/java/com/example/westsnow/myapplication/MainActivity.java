@@ -22,11 +22,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Looper;
 
+import com.example.westsnow.util.CurLocaTracker;
 import com.example.westsnow.util.LocaChangeTracker;
 import com.example.westsnow.util.MapUtil;
 import com.example.westsnow.util.Route;
 import com.example.westsnow.util.SnailException;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -36,11 +38,11 @@ public class MainActivity extends ActionBarActivity {
     private EditText Password;
     // Progress Dialog
     private ProgressDialog pDialog;
-    // JSON parser class
+    //JSON parser class
     JSONParser jsonParser = new JSONParser();
 
     private static final String LOGIN_URL = Constant.serverDNS + "/login.php";
-    // private static final String LOGIN_URL = "http://ec2-52-24-240-104.us-west-2.compute.amazonaws.com/login.php";
+//    private static final String LOGIN_URL = "http://ec2-52-24-240-104.us-west-2.compute.amazonaws.com/login.php";
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
 
@@ -87,6 +89,10 @@ public class MainActivity extends ActionBarActivity {
         signUp = (Button) findViewById(R.id.signUpButton);
         Username = (EditText) findViewById(R.id.username);
         Password = (EditText) findViewById(R.id.password);
+
+        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
+        CurLocaTracker.m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
     }
 
     @Override

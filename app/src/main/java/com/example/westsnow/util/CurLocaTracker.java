@@ -178,19 +178,24 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
 
             MarkerOptions lastMomentMarkerOption =  new MarkerOptions()
-                    .title("Moment")
+                    .title("PhotoText")
                     .icon(BitmapDescriptorFactory.fromResource(imageID))
                     .position(curLocation);
-
-            if(m_MomentMarkerOptions.size() > 0){
-                for(MarkerOptions marker: m_MomentMarkerOptions)
-                    m_map.addMarker(marker);
-            }
 
             m_map.addMarker(lastMomentMarkerOption);
             m_MomentMarkerOptions.add(lastMomentMarkerOption);
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
+    }
+
+    public void addExistedMarkers(){
+        int len = m_MomentMarkerOptions.size();
+        if(len-1 > 0){
+            for(int i=0;i<len-1;i++){
+                m_map.addMarker(m_MomentMarkerOptions.get(i));
+            }
+        }
+        m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
     }
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         private final View myContentsView;
@@ -209,18 +214,22 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                 JSONObject imgOb = util.getImgUrl(username, lat, lng);
                 System.out.println("[imgurl"+lat+""+lng+" "+imgOb.toString());
                 String imgUrl = imgOb.getString("imgURL");
+
                 String text = imgOb.getString("text");
                 imgUrl = Constant.serverDNS+"/"+imgUrl;
+
                 TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
                 tvTitle.setText(text);
 
-                ImageView ivImage = ((ImageView) myContentsView.findViewById(R.id.image));
+                if(!imgUrl.equals("-1")) {
+                    ImageView ivImage = ((ImageView) myContentsView.findViewById(R.id.image));
 
-                Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
-                ivImage.setImageBitmap(bitmap);
-                ivImage.getLayoutParams().height = 250;
-
+                    Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
+                    ivImage.setImageBitmap(bitmap);
+                    ivImage.getLayoutParams().height = 250;
+                }
                 return myContentsView;
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

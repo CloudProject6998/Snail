@@ -37,8 +37,8 @@ public class TimelineAdapter extends BaseAdapter {
     private Context context;
     private List<Map<String, Object>> list;
     private LayoutInflater inflater;
-    private static int n=0;
 
+    private static int n=0;
     public TimelineAdapter(Context context, List<Map<String, Object>> list) {
         super();
         this.context = context;
@@ -50,6 +50,7 @@ public class TimelineAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         System.out.printf("list.size()= %d\n", list.size());
+
         return list.size();
     }
 
@@ -88,7 +89,7 @@ public class TimelineAdapter extends BaseAdapter {
         viewHolder.time.setText(timeStr);
         viewHolder.imageURL=Constant.serverDNS +"/"+ imageLocation;
 
-        if( !imageLocation.equals("-1"))
+        if( !imageLocation.equals("null"))
             new DownloadAsyncTask().execute(viewHolder);
         return convertView;
     }
@@ -106,8 +107,8 @@ public class TimelineAdapter extends BaseAdapter {
             } catch (IOException e) {
                 // TODO: Download Image failed because of no DB connected !
                 Log.e("error", "Downloading Image Failed");
-                Log.e("error",viewHolder.imageURL);
                 viewHolder.bitmap = null;
+
             }
 
             return viewHolder;

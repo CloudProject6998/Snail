@@ -233,8 +233,9 @@ public class PersonalPage extends CurLocaTracker {
         if ((pageName != null)){
             if(pageName.equals("sendPhoto") || pageName.equals("sendText"))
                 addMomentMarker(newCurLoca); // add moment marker
-
+            addExistedMarkers();
             MapUtil.getInstance().drawExistedLines();
+
         }
     }
     @Override
