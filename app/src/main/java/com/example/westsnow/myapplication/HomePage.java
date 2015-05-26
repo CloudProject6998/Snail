@@ -125,13 +125,14 @@ public class HomePage extends ListActivity {
                                     int position, long id) {
                 // getting values from selected ListItem
                 Log.d("click","here");
-                String username = ((TextView) view.findViewById(R.id.secondLine)).getText().toString();
+                String selectedUser = ((TextView) view.findViewById(R.id.secondLine)).getText().toString();
 
                 // Starting new intent
                 Intent in = new Intent(getApplicationContext(),
                         TimeLine.class);
                 // sending pid to next activity
-                in.putExtra("username", username);
+                in.putExtra("selectedUser", selectedUser);
+                in.putExtra("username",username);
                 in.putExtra("curlat",curLat);
                 in.putExtra("curlng",curLng);
 
