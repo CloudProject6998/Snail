@@ -80,14 +80,45 @@ public class TimeLine extends ListActivity {
                 TextView v = (TextView) view.findViewById(R.id.likesNum);
                 String text =v.getText().toString();
                 int num = Integer.valueOf(text);
-                num += 1;
-                v.setText(String.valueOf(num));
 
+
+                //List<Map<String, Object>> tagList = v.getTag().toString();
                 String tag = v.getTag().toString();
-                String mid = list.get(Integer.valueOf(tag)).get("mid").toString();
-                Log.d("mid",mid);
-                db = dbUtil.getInstance();
-                db.addLikes(mid);
+                try {
+                    JSONObject obj = new JSONObject(tag);
+                    int click = obj.getInt("click");
+                    int pos = obj.getInt("pos");
+                    String mid = list.get(Integer.valueOf(pos)).get("mid").toString();
+                    String clickStr = String.valueOf(click);
+                    Log.d("mid",mid);
+                    Log.d("click",clickStr);
+                    if (click == 0) {
+                        num += 1;
+                        v.setText(String.valueOf(num));
+                        Map<String, Object> myMap = new HashMap<String, Object>();
+                        myMap.put("click", 1);
+                        myMap.put("pos", pos);
+                        v.setTag(myMap);
+
+                    } else {
+                        num -= 1;
+                        v.setText(String.valueOf(num));
+                        Map<String, Object> myMap = new HashMap<String, Object>();
+                        myMap.put("click", 0);
+                        myMap.put("pos", pos);
+                        v.setTag(myMap);
+                    }
+                    db = dbUtil.getInstance();
+                    db.addLikes(mid,clickStr);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Log.d("tagis",tag);
+                //String mid = list.get(Integer.valueOf(tag)).get("mid").toString();
+                //Log.d("mid",mid);
+                //db = dbUtil.getInstance();
+                //db.addLikes(mid);
                 //Log.d("tag",tag);
                 //Log.d("text",text);
 
