@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,11 @@ public class TimelineAdapter extends BaseAdapter {
         viewHolder.time.setText(timeStr);
         viewHolder.imageURL=Constant.serverDNS +"/"+ imageLocation;
         viewHolder.likesNum.setText(likes); //diyue
-        viewHolder.likesNum.setTag(Integer.valueOf(position));
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("click", 0);
+        map.put("pos", position);
+        //viewHolder.likesNum.setTag(Integer.valueOf(position));
+        viewHolder.likesNum.setTag(map);
 
         if( !imageLocation.equals("-1"))
             new DownloadAsyncTask().execute(viewHolder);
