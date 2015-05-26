@@ -336,4 +336,17 @@ public class MapUtil {
         inputLoca =inputLoca.replace(" ","");
         return inputLoca;
     }
+
+    public static void clearStoredMarkerRoutes(){
+        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
+
+        CurLocaTracker.m_MomentMarkerOptions =  new ArrayList<MarkerOptions>();
+        CurLocaTracker.m_LastMarker = null;
+        //CurLocaTracker.m_startLocation = null;
+        //CurLocaTracker.m_endLocation = null;
+
+        //LocaChangeTracker.m_startLocation = null;
+        //LocaChangeTracker.m_endLocation = null;
+        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+    }
 }

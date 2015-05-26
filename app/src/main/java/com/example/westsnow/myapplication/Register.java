@@ -39,10 +39,8 @@ public class Register extends ActionBarActivity {
 
     public void register(View view){
         //try to register to server
-        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
-        Route.m_recomRoutes = new ArrayList<Long>();
-        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
 
+        MapUtil.clearStoredMarkerRoutes();
         new RegisterAttempt().execute();
 
 //        if( registerSucceed() ) {

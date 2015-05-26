@@ -20,6 +20,7 @@ import com.example.westsnow.util.Route;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -112,7 +113,6 @@ public class PersonalPage extends CurLocaTracker {
     }
 
     public void GetRouteValue(View view) {
-
         // Update Location in time
         m_map.clear();
         getCurLocation();
@@ -157,20 +157,20 @@ public class PersonalPage extends CurLocaTracker {
                     }
                 });
                 Route route = new Route();
-                double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
+                double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context, startPosName, endPosName, m_LastLocation);
                 List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
-                //Todo : get marker position and image url and text on the route
                 if (recommendedRoutes != null) {
                     for (int i = 0; i < recommendedRoutes.size(); i++) {
-                        final List<LatLng> routePoints = route.routePoints(recommendedRoutes.get(i));
-
+                        long routeId = recommendedRoutes.get(i);
+                        final List<LatLng> routePoints = route.routePoints(routeId);
+                        final JSONArray markerJsonArr  = dbUtil.getInstance().getMarkerList(routeId + "");
                         if (routePoints != null) {
                             handle.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     m_drawLineType = 3;
                                     util.drawRoutes(routePoints, m_map, m_drawLineType);
-                                    //Todo: draw snails
+                                    addExistedMarkers(markerJsonArr);
                                 }
                             });
                         }
@@ -218,7 +218,7 @@ public class PersonalPage extends CurLocaTracker {
         double lat = intent.getDoubleExtra("curlat", 0);
         double lng = intent.getDoubleExtra("curlng", 0);
 
-        System.out.println("[user]"+username+"[page]"+pageName+"[lat]"+lat+"[lng]"+lng);
+        System.out.println("[user]" + username + "[page]" + pageName + "[lat]" + lat + "[lng]" + lng);
 
         Location newCurLoca = new Location("");
         newCurLoca.setLongitude(lng);
@@ -230,10 +230,13 @@ public class PersonalPage extends CurLocaTracker {
         m_map = mapFragment.getMap();
 
         buildGoogleApiClient();
+        int prevFlag = 0;
         if ((pageName != null)){
-            if(pageName.equals("sendPhoto") || pageName.equals("sendText"))
+            if(pageName.equals("sendPhoto") || pageName.equals("sendText")) {
+                prevFlag = 1; // just add previous points before current point
                 addMomentMarker(newCurLoca); // add moment marker
-            addExistedMarkers();
+            }
+            addExistedMarkers(prevFlag);
             MapUtil.getInstance().drawExistedLines();
 
         }

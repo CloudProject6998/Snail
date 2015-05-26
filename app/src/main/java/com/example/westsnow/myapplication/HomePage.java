@@ -30,6 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import android.widget.SimpleAdapter;
 
+import com.example.westsnow.util.CurLocaTracker;
+import com.example.westsnow.util.MapUtil;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 //show friend list
 public class HomePage extends ListActivity {

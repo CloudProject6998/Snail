@@ -90,9 +90,7 @@ public class MainActivity extends ActionBarActivity {
         Username = (EditText) findViewById(R.id.username);
         Password = (EditText) findViewById(R.id.password);
 
-        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
-        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
-        CurLocaTracker.m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
+        MapUtil.clearStoredMarkerRoutes();
     }
 
     @Override

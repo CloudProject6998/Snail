@@ -44,8 +44,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
     public GoogleApiClient m_GoogleApiClient;
     public static GoogleMap m_map = null;
-    private final JSONParser jParser = new JSONParser();
-    private static final String TAG_SUCCESS = "success";
 
     public Location m_LastLocation;
     public static Marker m_LastMarker;
@@ -57,7 +55,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
     protected String username;
     protected static long routeID;
     protected dbUtil db;
-    protected JSONObject m_json;
+
 
     public void buildGoogleApiClient() {
         m_GoogleApiClient = new GoogleApiClient.Builder(this) // after building, called onConnected (callback function) immediately
@@ -170,38 +168,79 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
     public void addMomentMarker(Location curLoca) {
         if (curLoca != null) {
+            try {
+                double lat = curLoca.getLatitude();
+                double lng = curLoca.getLongitude();
+                LatLng curLocation = new LatLng(lat, lng);
 
-            LatLng curLocation = new LatLng(curLoca.getLatitude(), curLoca.getLongitude());
+                m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
-            m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
+                int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
 
-            int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
+                JSONObject imgOb = dbUtil.getInstance().getImgUrl(username, lat, lng);
+                String imgUrl = imgOb.getString("imgURL");
+                String text = imgOb.getString("text");
+                MarkerOptions lastMomentMarkerOption = new MarkerOptions()
+                        .title(text) // title put : imgUrl
+                        .snippet(imgUrl) //  snnipet put: text
+                        .icon(BitmapDescriptorFactory.fromResource(imageID))
+                        .position(curLocation);
 
-            MarkerOptions lastMomentMarkerOption =  new MarkerOptions()
-                    .title("PhotoText")
-                    .icon(BitmapDescriptorFactory.fromResource(imageID))
-                    .position(curLocation);
+                m_map.addMarker(lastMomentMarkerOption);
+                m_MomentMarkerOptions.add(lastMomentMarkerOption);
 
-            m_map.addMarker(lastMomentMarkerOption);
-            m_MomentMarkerOptions.add(lastMomentMarkerOption);
-            m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
+                m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
+
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void addExistedMarkers(){
+    public void addExistedMarkers(int prevFlag){
         int len = m_MomentMarkerOptions.size();
+        if(prevFlag == 1)
+            len = len - 1;
         if(len-1 > 0){
-            for(int i=0;i<len-1;i++){
+            for(int i=0;i<len;i++){
                 m_map.addMarker(m_MomentMarkerOptions.get(i));
             }
         }
         m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
     }
+
+    public void addExistedMarkers(JSONArray markerJSONArray){
+        try {
+            int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
+            for (int i = 0; i < markerJSONArray.length(); i++) {
+                JSONObject obj = markerJSONArray.getJSONObject(i);
+                double latitude = Double.parseDouble(obj.getString("latitude"));
+                double longitude = Double.parseDouble(obj.getString("longitude"));
+                String context = obj.getString("context");
+                String imgURL = obj.getString("imageLocation");
+
+                LatLng curLocation = new LatLng(latitude, longitude);
+                MarkerOptions lastMomentMarkerOption = new MarkerOptions()
+                        .title(context) // title put : imgUrl
+                        .snippet(imgURL) //  snnipet put: text
+                        .icon(BitmapDescriptorFactory.fromResource(imageID))
+                        .position(curLocation);
+
+
+                m_map.addMarker(lastMomentMarkerOption);
+                m_MomentMarkerOptions.add(lastMomentMarkerOption);
+                m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
+            }
+        }catch(JSONException e){
+            e.printStackTrace();;
+        }
+    }
+
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-        private final View myContentsView;
+        private final View m_contentsView;
 
         MyInfoWindowAdapter() {
-            myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+            m_contentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
         }
 
         @Override
@@ -209,26 +248,28 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             // getting JSON string from URL
             dbUtil util = dbUtil.getInstance();
             try {
-                double lat = marker.getPosition().latitude;
-                double lng = marker.getPosition().longitude;
-                JSONObject imgOb = util.getImgUrl(username, lat, lng);
-                System.out.println("[imgurl"+lat+""+lng+" "+imgOb.toString());
-                String imgUrl = imgOb.getString("imgURL");
+                String tvImgUrl = marker.getSnippet();
+                String text = marker.getTitle();
+                System.out.println("[set marker :imgurl" + tvImgUrl + " text" + text);
+                TextView ivText = (TextView) m_contentsView.findViewById(R.id.title);
+                ivText.setText(text);
+                if(!tvImgUrl.equals("-1")) {
+                    String imgUrl = Constant.serverDNS+"/"+tvImgUrl;
 
-                String text = imgOb.getString("text");
-                imgUrl = Constant.serverDNS+"/"+imgUrl;
+                    ImageView ivImage = ((ImageView) m_contentsView.findViewById(R.id.image));
 
-                TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
-                tvTitle.setText(text);
-
-                if(!imgUrl.equals("-1")) {
-                    ImageView ivImage = ((ImageView) myContentsView.findViewById(R.id.image));
 
                     Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
                     ivImage.setImageBitmap(bitmap);
                     ivImage.getLayoutParams().height = 250;
                 }
-                return myContentsView;
+                else{
+                    ImageView ivImage = ((ImageView) m_contentsView.findViewById(R.id.image));
+                    ivImage.setImageBitmap(null);
+                    ivImage.getLayoutParams().height = 0;
+                }
+
+                return m_contentsView;
 
             } catch (Exception e) {
                 e.printStackTrace();
