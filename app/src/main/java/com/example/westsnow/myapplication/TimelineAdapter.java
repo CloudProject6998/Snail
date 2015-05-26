@@ -76,6 +76,9 @@ public class TimelineAdapter extends BaseAdapter {
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
             viewHolder.time = (TextView) convertView.findViewById(R.id.show_time);
             viewHolder.iv = (ImageView) convertView.findViewById(R.id.myimage);
+            viewHolder.likesNum = (TextView) convertView.findViewById(R.id.likesNum); //diyue
+
+
             convertView.setTag(viewHolder);
         }
         viewHolder = (ViewHolder) convertView.getTag();
@@ -84,10 +87,17 @@ public class TimelineAdapter extends BaseAdapter {
         String titleStr = list.get(position).get("title").toString();
         String timeStr = list.get(position).get("time").toString();
         String imageLocation = list.get(position).get("imageLocation").toString();
+        String likes = list.get(position).get("likes").toString(); //diyue
+        String mid = list.get(position).get("mid").toString();//diyue
+
         System.out.println(titleStr+"  "+imageLocation);
+
+
         viewHolder.title.setText(titleStr);
         viewHolder.time.setText(timeStr);
         viewHolder.imageURL=Constant.serverDNS +"/"+ imageLocation;
+        viewHolder.likesNum.setText(likes); //diyue
+        viewHolder.likesNum.setTag(Integer.valueOf(position));
 
         if( !imageLocation.equals("-1"))
             new DownloadAsyncTask().execute(viewHolder);
@@ -135,6 +145,7 @@ public class TimelineAdapter extends BaseAdapter {
         public ImageView iv;
         public String imageURL;
         public Bitmap bitmap;
+        public TextView likesNum;
     }
 }
 

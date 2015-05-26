@@ -2,6 +2,7 @@ package com.example.westsnow.myapplication;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,16 +10,24 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.westsnow.util.dbUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +37,7 @@ import java.util.Map;
 
 public class TimeLine extends ListActivity {
 
+    protected dbUtil db;
     ListView lv;
     String username;
     private ProgressDialog pDialog;
@@ -44,6 +54,7 @@ public class TimeLine extends ListActivity {
     private TimelineAdapter timelineAdapter;
     private List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +69,30 @@ public class TimeLine extends ListActivity {
         lv = getListView();
         lv.setDividerHeight(0);
         new LoadAllMoments().execute();
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // getting values from selected ListItem
+                //Log.d("click","here");
+                TextView v = (TextView) view.findViewById(R.id.likesNum);
+                String text =v.getText().toString();
+                int num = Integer.valueOf(text);
+                num += 1;
+                v.setText(String.valueOf(num));
+
+                String tag = v.getTag().toString();
+                String mid = list.get(Integer.valueOf(tag)).get("mid").toString();
+                Log.d("mid",mid);
+                db = dbUtil.getInstance();
+                db.addLikes(mid);
+                //Log.d("tag",tag);
+                //Log.d("text",text);
+
+            }
+        });
     }
 
     @Override
@@ -137,11 +172,15 @@ public class TimeLine extends ListActivity {
                         String context = c.getString("context");
                         String time = c.getString("time");
                         String imageLocation = c.getString("imageLocation");
+                        String likes = c.getString("likes"); //diyue
+                        String mid = c.getString("mid");
                         //momentList.add(time+ " | " + context);
                         Map<String, Object> map = new HashMap<String, Object>();
                         map.put("title", context);
                         map.put("time", time);
                         map.put("imageLocation", imageLocation );
+                        map.put("likes",likes); //diyue
+                        map.put("mid",mid);//diyue
                         list.add(map);
                     }
                 }

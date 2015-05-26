@@ -57,6 +57,35 @@ public class dbUtil {
         return m_instance;
     }
 
+    public void addLikes(String mid, String click) {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(mid);
+        passing.add(click);
+        new addLikesByMid().execute(passing);
+    }
+
+    class addLikesByMid extends AsyncTask<ArrayList<String>, String, String> {
+
+        @Override
+        protected String doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0];
+            try {
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("mid", passed.get(0)));
+                params.add(new BasicNameValuePair("click", passed.get(1)));
+                String addLikesURL = Constant.serverDNS + "/addLikes.php";
+
+                JSONObject json = jParser.makeHttpRequest(addLikesURL, "GET", params);
+                //Log.d("InsertStartEndAttempt:", json.toString());
+                return json.getString("message");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+    }
+
     public JSONArray getMarkerList(String routeID) throws ExecutionException, InterruptedException {
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(routeID);
