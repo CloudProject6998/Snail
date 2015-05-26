@@ -1,5 +1,6 @@
 package com.example.westsnow.util;
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,10 +15,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 
+import com.example.westsnow.myapplication.HomePage;
 import com.example.westsnow.myapplication.R;
 import com.example.westsnow.myapplication.Constant;
 import com.example.westsnow.myapplication.JSONParser;
 
+import com.example.westsnow.myapplication.TimeLine;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.GoogleMap.*;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
@@ -261,13 +265,30 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
                     Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
                     ivImage.setImageBitmap(bitmap);
+                    ivImage.setClickable(true);
                     ivImage.getLayoutParams().height = 250;
+
+                    m_map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+                        public void onInfoWindowClick(Marker marker) {
+                            Log.i("LinkTimeLine", "Image button is pressed, visible in LogCat");
+                            Intent in = new Intent(getApplicationContext(),
+                                    TimeLine.class);
+                            // sending pid to next activity
+                            in.putExtra("username", username);
+                            in.putExtra("curlat", m_LastLocation.getLatitude());
+                            in.putExtra("curlng", m_LastLocation.getLongitude());
+
+                            // starting new activity
+                            startActivity(in);
+                        }
+                    });
                 }
                 else{
                     ImageView ivImage = ((ImageView) m_contentsView.findViewById(R.id.image));
                     ivImage.setImageBitmap(null);
                     ivImage.getLayoutParams().height = 0;
                 }
+
 
                 return m_contentsView;
 
@@ -310,5 +331,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             bmImage.setImageBitmap(result);
         }
     }
+
 
 }
