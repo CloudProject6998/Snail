@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.AsyncTask;
-import android.content.res.*;
+import java.net.HttpURLConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -50,7 +50,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
     public Location m_LastLocation;
     public static Marker m_LastMarker;
     public static List<MarkerOptions> m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
-    public static Marker m_EndMarker;
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
@@ -73,13 +72,15 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
         super.onStart();
         m_GoogleApiClient.connect();
-
+        System.out.println("[Start !!!!]");
+        /*
         MapUtil util = MapUtil.getInstance();
         if (LocaChangeTracker.m_trackerroutes.size() > 0) {
             System.out.println("[Start !!!!]" + LocaChangeTracker.m_trackerroutes);
-            util.drawGoogleRoutes(LocaChangeTracker.m_trackerroutes, m_map, 2);
+            util.drawRoutes(LocaChangeTracker.m_trackerroutes, m_map, 2);
         } else
             System.out.println("[Start !!!!] null ; null");
+            */
     }
 
     @Override
@@ -151,20 +152,19 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
     public void addCurMarker() {
         getCurLocation();
-        int imageID = getResources().getIdentifier("pin_2", "drawable", getPackageName());
         if (m_LastLocation != null) {
             LatLng curLocation = new LatLng(m_LastLocation.getLatitude(), m_LastLocation.getLongitude());
             m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
-            if (m_LastMarker != null)
-                m_LastMarker.remove();
+            //if (m_LastMarker != null)
+            //    m_LastMarker.remove();
 
-            m_LastMarker = m_map.addMarker(new MarkerOptions()
-                    .title("Current Location")
-                    .snippet("Cur location")
-                    .position(curLocation)
-                    .alpha(0.9F)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            //m_LastMarker = m_map.addMarker(new MarkerOptions()
+            //        .title("Current Location")
+            //        .snippet("Cur location")
+            //        .position(curLocation)
+            //        .alpha(0.9F)
+            //        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         }
     }
 
@@ -178,9 +178,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
 
             MarkerOptions lastMomentMarkerOption =  new MarkerOptions()
-                    .title("Moment Location")
-                    .snippet("Moment location")
-                            //.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                    .title("Moment")
                     .icon(BitmapDescriptorFactory.fromResource(imageID))
                     .position(curLocation);
 
@@ -188,19 +186,14 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                 for(MarkerOptions marker: m_MomentMarkerOptions)
                     m_map.addMarker(marker);
             }
+
             m_map.addMarker(lastMomentMarkerOption);
             m_MomentMarkerOptions.add(lastMomentMarkerOption);
+
             m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         }
     }
-
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-
-        private static final String TAG_USER = "users";
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        JSONParser jParser = new JSONParser();
-        private final String url = Constant.serverDNS + "/getMoments.php";
-
         private final View myContentsView;
 
         MyInfoWindowAdapter() {
@@ -211,39 +204,29 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         public View getInfoContents(Marker marker) {
             // getting JSON string from URL
             dbUtil util = dbUtil.getInstance();
+            try {
+                double lat = marker.getPosition().latitude;
+                double lng = marker.getPosition().longitude;
+                JSONObject imgOb = util.getImgUrl(username, lat, lng);
+                System.out.println("[imgurl"+lat+""+lng+" "+imgOb.toString());
+                String imgUrl = imgOb.getString("imgURL");
+                String text = imgOb.getString("text");
+                imgUrl = Constant.serverDNS+"/"+imgUrl;
+                TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
+                tvTitle.setText(text);
 
-            try{
-            String imgUrl  = util.getImgUrl(username,m_LastLocation.getLatitude(),m_LastLocation.getLongitude());
-                System.out.println(m_LastLocation.getLongitude()+","+m_LastLocation.getLatitude()+"imgUrl"+imgUrl);
+                ImageView ivImage = ((ImageView) myContentsView.findViewById(R.id.image));
 
-                URL imageURL = new URL(imgUrl);
-                InputStream in = imageURL.openStream();
-                Bitmap bitmap = BitmapFactory.decodeStream(in);
-
-                //params.add(new BasicNameValuePair("email", username));
-
-            TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
-            tvTitle.setText(marker.getTitle());
-            TextView tvSnippet = ((TextView) myContentsView.findViewById(R.id.snippet));
-            tvSnippet.setText(marker.getSnippet()); //Should be changed to address on EC2
-            //tvSnippet.setText(context); //Should be changed to address on EC2
-            ImageView ivImage = ((ImageView) myContentsView.findViewById(R.id.image));
-            //new DownloadImageTask(ivImage).execute("http://java.sogeti.nl/JavaBlog/wp-content/uploads/2009/04/android_icon_256.png");
-            //ivImage.setImageResource(R.drawable.photoarea); //Should be changed to address on EC2
-            ivImage.setImageBitmap(bitmap);
+                Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
+                ivImage.setImageBitmap(bitmap);
                 ivImage.getLayoutParams().height = 250;
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            catch(ExecutionException e){
-                e.printStackTrace();
-            }
-            catch(IOException e){
-                e.printStackTrace();
-            }
 
-            return myContentsView;
-        }
+                return myContentsView;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+    }
 
         @Override
         public View getInfoWindow(Marker marker) {
@@ -259,17 +242,19 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             this.bmImage = bmImage;
         }
 
-        protected Bitmap doInBackground(String... urls) {
+        protected  Bitmap doInBackground(String... urls) {
+
             String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
+            Bitmap myBitmap = null;
             try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
+                URL url = new URL(urldisplay);
+                Bitmap bitmap = BitmapFactory.decodeStream(url.openStream());
+                return bitmap;
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
             }
-            return mIcon11;
+            return myBitmap;
         }
 
         protected void onPostExecute(Bitmap result) {
@@ -277,31 +262,4 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         }
     }
 
-
-    private Bitmap scaleImage(Resources res, int id, int lessSideSize) {
-        Bitmap b = null;
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-
-        BitmapFactory.decodeResource(res, id, o);
-
-        float sc = 0.0f;
-        int scale = 1;
-        // if image height is greater than width
-        if (o.outHeight > o.outWidth) {
-            sc = o.outHeight / lessSideSize;
-            scale = Math.round(sc);
-        }
-        // if image width is greater than height
-        else {
-            sc = o.outWidth / lessSideSize;
-            scale = Math.round(sc);
-        }
-
-        // Decode with inSampleSize
-        BitmapFactory.Options o2 = new BitmapFactory.Options();
-        o2.inSampleSize = scale;
-        b = BitmapFactory.decodeResource(res, id, o2);
-        return b;
-    }
 }

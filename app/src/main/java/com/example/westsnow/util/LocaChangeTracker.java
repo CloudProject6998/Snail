@@ -89,6 +89,7 @@ public class LocaChangeTracker extends CurLocaTracker{
                 }
                 System.out.println("location changed!");
                 //display a point to move
+                /*
                 if ((m_LastMarker != null)) {
                     m_LastMarker.remove();
                 }
@@ -96,6 +97,7 @@ public class LocaChangeTracker extends CurLocaTracker{
                         .title("Current Location")
                         .snippet("The most populous city in")
                         .position(curLocation));
+                        */
 
                 //Todo 5: save it to DB
                 double latitude = location.getLatitude();

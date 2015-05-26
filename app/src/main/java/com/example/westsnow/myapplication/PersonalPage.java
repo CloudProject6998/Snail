@@ -1,5 +1,4 @@
 package com.example.westsnow.myapplication;
-
 import com.example.westsnow.util.*;
 
 import android.content.Intent;
@@ -22,9 +21,6 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
 
 import org.json.JSONException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -35,9 +31,7 @@ public class PersonalPage extends CurLocaTracker {
     public int m_drawLineType = 3; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
     public Location momentLoc ;
-
     public static boolean visible = false;
-
 
     public void SendPhoto() {
         Intent in = new Intent(getApplicationContext(),
@@ -64,7 +58,7 @@ public class PersonalPage extends CurLocaTracker {
         momentLoc = m_LastLocation;
         in.putExtra("username", username);
         in.putExtra("routeID",String.valueOf(routeID));
-        in.putExtra("curlat",m_LastLocation.getLatitude());
+        in.putExtra("curlat", m_LastLocation.getLatitude());
         in.putExtra("curlng",m_LastLocation.getLongitude());
         // starting new activity
         startActivity(in);
@@ -159,13 +153,13 @@ public class PersonalPage extends CurLocaTracker {
                     @Override
                     public void run() {
                         m_drawLineType = 1;
-                        util.drawGoogleRoutes(routes, m_map, m_drawLineType);
+                        util.drawRoutes(routes, m_map, m_drawLineType);
                     }
                 });
                 Route route = new Route();
                 double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
                 List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
-
+                //Todo : get marker position and image url and text on the route
                 if (recommendedRoutes != null) {
                     for (int i = 0; i < recommendedRoutes.size(); i++) {
                         final List<LatLng> routePoints = route.routePoints(recommendedRoutes.get(i));
@@ -175,7 +169,8 @@ public class PersonalPage extends CurLocaTracker {
                                 @Override
                                 public void run() {
                                     m_drawLineType = 3;
-                                    util.drawGoogleRoutes(routePoints, m_map, m_drawLineType);
+                                    util.drawRoutes(routePoints, m_map, m_drawLineType);
+                                    //Todo: draw snails
                                 }
                             });
                         }
@@ -211,7 +206,7 @@ public class PersonalPage extends CurLocaTracker {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_page);
 
-        if (visible == false) {
+        if(visible == false){
             View b = findViewById(R.id.sendButton);
             b.setVisibility(View.GONE);
         }
@@ -236,11 +231,10 @@ public class PersonalPage extends CurLocaTracker {
 
         buildGoogleApiClient();
         if ((pageName != null)){
-                System.out.println("[After send photo] !");
             if(pageName.equals("sendPhoto") || pageName.equals("sendText"))
                 addMomentMarker(newCurLoca); // add moment marker
 
-            drawExistedLines();
+            MapUtil.getInstance().drawExistedLines();
         }
     }
     @Override
@@ -274,30 +268,5 @@ public class PersonalPage extends CurLocaTracker {
             startActivity(in);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void drawExistedLines(){
-        MapUtil util = MapUtil.getInstance();
-        util.drawGoogleRoutes(MapUtil.m_googleRoutes, m_map, 1); // add google route searched before
-
-        //add recommended route
-        Route route = new Route();
-        List<Long> prevRecomRoutes = Route.m_recomRoutes;
-        try{
-            if (prevRecomRoutes != null) {
-                for (int i = 0; i < prevRecomRoutes.size(); i++) {
-                    List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
-                    if (routePoints != null) {
-                        util.drawGoogleRoutes(routePoints, m_map, 3);
-                    }
-                }
-            }
-        }catch (ExecutionException e) {
-            e.printStackTrace();
-        }catch (InterruptedException e) {
-            e.printStackTrace();
-        }catch(JSONException e) {
-            e.printStackTrace();
-        }
     }
 }
