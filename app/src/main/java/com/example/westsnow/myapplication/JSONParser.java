@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.example.westsnow.util.SnailException;
+
 public class JSONParser {
     static InputStream is = null;
     static JSONObject jsonObj;
@@ -79,7 +81,7 @@ public class JSONParser {
         return jsonObj;
     }
 
-    public JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params) { // Make HTTP request
+    public JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params) throws SnailException { // Make HTTP request
         try {
             // checking request method
             if (method == "POST") {
@@ -104,6 +106,7 @@ public class JSONParser {
             e.printStackTrace();
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            throw new SnailException(SnailException.EX_DESP_NoInternet);
         } catch (IOException e) {
             e.printStackTrace();
         }
