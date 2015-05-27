@@ -51,6 +51,8 @@ public class TimeLine extends ListActivity {
 
     public double curLat;
     public double curLng;
+    public String startLocName;
+    public String endLocName;
 
     private TimelineAdapter timelineAdapter;
     private List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -66,6 +68,10 @@ public class TimeLine extends ListActivity {
         selectedUser = intent.getStringExtra("selectedUser");
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng", 0);
+
+        endLocName = intent.getStringExtra("endLocName");
+        startLocName = intent.getStringExtra("startLocName");
+
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         lv = getListView();
@@ -149,9 +155,11 @@ public class TimeLine extends ListActivity {
             Log.d("timeline","here");
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName","timeLine"); //Todo
+            upIntent.putExtra("pageName", "timeLine"); //Todo
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
+            upIntent.putExtra("endLocName", endLocName);
+            upIntent.putExtra("startLocName", startLocName);
             NavUtils.navigateUpTo(this, upIntent);
 
             return true;
@@ -181,19 +189,17 @@ public class TimeLine extends ListActivity {
         protected String doInBackground(String... args) {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("email", selectedUser));
-            Log.d("username",selectedUser);
+            params.add(new BasicNameValuePair("email", username));
 
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
 
             if (json != null) {
-                // Check your log cat for JSON reponse
-                Log.d("All moments: ", json.toString());
+            // Check your log cat for JSON reponse
+            Log.d("All moments: ", json.toString());
             } else {
-                //throw new SnailException(SnailException.EX_DESP_JsonNull);
+            //throw new SnailException(SnailException.EX_DESP_JsonNull);
                 return "null";
-
             }
 
             try {
@@ -237,26 +243,24 @@ public class TimeLine extends ListActivity {
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after getting all products
             pDialog.dismiss();
-
+            // updating UI from Background Thread
             if (file_url != null) {
                 if (file_url.equals("null")) {
                     Toast.makeText(TimeLine.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(TimeLine.this, file_url, Toast.LENGTH_LONG).show();
                 }
-            } else {
-                    // updating UI from Background Thread
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            timelineAdapter = new TimelineAdapter(TimeLine.this, list);
-                            lv.setAdapter(timelineAdapter);
-
-                            lv = getListView();
-                            LayoutInflater inflater = getLayoutInflater();
-                            View header = inflater.inflate(R.layout.header, lv, false);
-                            lv.addHeaderView(header, null, false);
-                        }
-                    });
+            }else {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        timelineAdapter = new TimelineAdapter(TimeLine.this, list);
+                        lv.setAdapter(timelineAdapter);
+                        lv = getListView();
+                        LayoutInflater inflater = getLayoutInflater();
+                        View header = inflater.inflate(R.layout.header, lv, false);
+                        lv.addHeaderView(header, null, false);
+                    }
+                });
             }
         }
     }

@@ -46,12 +46,16 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,11 +69,16 @@ public class SendMoment extends Activity{
     private EditText context;
     static final int RESULT_LOAD_IMG = 1;
     static final int REQUEST_IMAGE_CAPTURE = 2;
+    static final int REQUEST_TAKE_PHOTO = 3;
     private int serverResponseCode = 0;
     private ProgressDialog dialog = null;
     String imgDecodableString;
+    String mCurrentPhotoPath;
+    boolean isFromCamera=false;
     public double curLat;
     public double curLng;
+    public String endLocName;
+    public String startLocName;
 
     private ProgressDialog pDialog;
     JSONParser jsonParser = new JSONParser();
@@ -85,7 +94,14 @@ public class SendMoment extends Activity{
         dialog = ProgressDialog.show(SendMoment.this, "", "Uploading file...", true);
         Thread t = new Thread(new Runnable() {
             public void run() {
-                uploadFile(imgDecodableString);
+                if(isFromCamera) {
+                    System.out.printf("sendPhoto(): isFromCamera: %s\n", mCurrentPhotoPath);
+                    uploadFile(mCurrentPhotoPath);
+                }
+                else {
+                    System.out.printf("sendPhoto(): isFromGallery: %s\n", imgDecodableString);
+                    uploadFile(imgDecodableString);
+                }
 
             }
         });
@@ -97,6 +113,8 @@ public class SendMoment extends Activity{
             intent.putExtra("pageName", "sendPhoto");
             intent.putExtra("curlat",curLat);
             intent.putExtra("curlng",curLng);
+            intent.putExtra("endLocName", endLocName);
+            intent.putExtra("startLocName", startLocName);
             startActivity(intent);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -107,8 +125,15 @@ public class SendMoment extends Activity{
         dialog = ProgressDialog.show(SendMoment.this, "", "Uploading file...", true);
         Thread t = new Thread(new Runnable() {
             public void run() {
-                uploadFile(imgDecodableString);
+                if(isFromCamera) {
+                    uploadFile(mCurrentPhotoPath);
+                    System.out.printf("send()fromCamera: %s\n", mCurrentPhotoPath);
+                }
+                else {
+                    uploadFile(imgDecodableString);
+                    System.out.printf("send()fromGallery: %s\n", imgDecodableString);
 
+                }
             }
         });
         t.start();
@@ -119,6 +144,8 @@ public class SendMoment extends Activity{
             intent.putExtra("pageName", "sendPhoto");
             intent.putExtra("curlat",curLat);
             intent.putExtra("curlng",curLng);
+            intent.putExtra("endLocName", endLocName);
+            intent.putExtra("startLocName", startLocName);
             startActivity(intent);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -320,6 +347,9 @@ public class SendMoment extends Activity{
         routeID = intent.getStringExtra("routeID");
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng",0);
+        startLocName = intent.getStringExtra("startLocName");
+        endLocName = intent.getStringExtra("endLocName");
+
         getActionBar().setDisplayHomeAsUpEnabled(true);
         Log.d("SendMomentGetRouteID",String.valueOf(routeID));
 
@@ -442,9 +472,39 @@ public class SendMoment extends Activity{
     public void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                System.out.printf("There is an IO exception after createImageFile(): %s\n", mCurrentPhotoPath);
+            }
+            // Continue only if the ßFile was successfully created
+            if (photoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
         }
     }
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpeg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -469,17 +529,77 @@ public class SendMoment extends Activity{
                 imgView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
                 scaleImage();
             }
-            else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
+            else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+                isFromCamera=true;
+                File photoFile = null;
+//                Bundle extras = data.getExtras();
+//                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                System.out.println("received camera image.");
+                galleryAddPic();
                 ImageView imgView = (ImageView) findViewById(R.id.open_image_from_disk_icon);
-                imgView.setImageBitmap(imageBitmap);
-                scaleImage();
+                Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+                imgView.setImageBitmap(bitmap);
+                //setPic(imgView);
+                //
+                // scaleImage();
+                //bitmap = Bitmap.createScaledBitmap(bitmap, 350, 350, false);
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+
+
+                try {
+                    photoFile = createImageFile();
+                    System.out.println("Create another");
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    System.out.printf("There is an IO exception after createImageFile(): %s\n", mCurrentPhotoPath);
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    photoFile.createNewFile();
+                    FileOutputStream fo = new FileOutputStream(photoFile);
+                    fo.write(bytes.toByteArray());
+                    fo.close();
+
+                }
+
+
             }
         } catch (Exception e) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
         }
 
+    }
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    private void setPic(ImageView mImageView) {
+        // Get the dimensions of the View
+        int targetW = mImageView.getWidth();
+        int targetH = mImageView.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        mImageView.setImageBitmap(bitmap);
     }
 
     private void scaleImage()
@@ -568,6 +688,9 @@ public class SendMoment extends Activity{
             upIntent.putExtra("pageName","sendPhotoNull"); //Todo
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
+            upIntent.putExtra("endLocName", endLocName);
+            upIntent.putExtra("startLocName", startLocName);
+
             NavUtils.navigateUpTo(this, upIntent);
 
             return true;
@@ -584,6 +707,8 @@ public class SendMoment extends Activity{
         intent.putExtra("pageName","sendPhotoNull");
         intent.putExtra("curlat",curLat);
         intent.putExtra("curlng",curLng);
+        intent.putExtra("endLocName", endLocName);
+        intent.putExtra("startLocName", startLocName);
         startActivity(intent);
     }
 }

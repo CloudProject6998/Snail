@@ -30,7 +30,8 @@ public class SendText extends Activity {
     private EditText context;
     public double curLat;
     public double curLng;
-
+    public String endLocName;
+    public String startLocName;
 
     private ProgressDialog pDialog;
     JSONParser jsonParser = new JSONParser();
@@ -53,7 +54,10 @@ public class SendText extends Activity {
         username = intent.getStringExtra("username");
         routeID = intent.getStringExtra("routeID");
         curLat = intent.getDoubleExtra("curlat", 0);
-        curLng = intent.getDoubleExtra("curlng",0);
+        curLng = intent.getDoubleExtra("curlng", 0);
+        startLocName = intent.getStringExtra("startLocName");
+        endLocName = intent.getStringExtra("endLocName");
+
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
@@ -88,6 +92,8 @@ public class SendText extends Activity {
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
             upIntent.putExtra("routeID",routeID);
+            upIntent.putExtra("endLocName", endLocName);
+            upIntent.putExtra("startLocName", startLocName);
             NavUtils.navigateUpTo(this, upIntent);
             return true;
         }
@@ -124,18 +130,15 @@ public class SendText extends Activity {
 
                 Log.d("request!", "starting");
                 JSONObject json = jsonParser.makeHttpRequest(URL, "GET", params);
-
                 if (json != null) {
-                    // checking log for json response
-                    Log.d("send moment attempt", json.toString());
-                    // success tag for json
+                // checkin log for json response
+                Log.d("send moment attempt", json.toString());
+                 // success tag for json
                     success = json.getInt(TAG_SUCCESS);
                 } else {
-                    //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                //throw new SnailException(SnailException.EX_DESP_JsonNull);
                     return "null";
-
                 }
-
                 // success tag for json
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
@@ -148,6 +151,8 @@ public class SendText extends Activity {
                     ii.putExtra("pageName", "sendText");//Todo
                     ii.putExtra("curlat", curLat);
                     ii.putExtra("curlng", curLng);
+                    ii.putExtra("endLocName", endLocName);
+                    ii.putExtra("startLocName", startLocName);
                     startActivity(ii);
                     return json.getString(TAG_MESSAGE) + "~";
                 } else {

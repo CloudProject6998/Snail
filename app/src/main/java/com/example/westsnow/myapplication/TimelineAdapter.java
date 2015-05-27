@@ -21,6 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -118,7 +119,9 @@ public class TimelineAdapter extends BaseAdapter {
             try {
                 URL imageURL = new URL(viewHolder.imageURL);
                 System.out.println("viewHolder.imageURL:  "+viewHolder.imageURL);
-                viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+                //viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+
+                viewHolder.bitmap = decodeSampledBitmapFromStream(imageURL, viewHolder.title.getText(), 300, 300);
             } catch (IOException e) {
                 Log.e("error",viewHolder.imageURL);
                 Log.e("error", "Downloading Image Failed");
@@ -141,7 +144,64 @@ public class TimelineAdapter extends BaseAdapter {
         }
     }
 
+    public static Bitmap decodeSampledBitmapFromStream(URL imageURL, CharSequence IDtext,
+                                                       int reqWidth, int reqHeight) {
+        Bitmap bitmap = null;
+        // First decode with inJustDecodeBounds=true to check dimensions
+        try {
+            HttpURLConnection connection = (HttpURLConnection) imageURL.openConnection();
+            System.out.println("openConnection");
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            System.out.println("options.inJustDecodeBounds = true;");
 
+            InputStream is = new BufferedInputStream(connection.getInputStream());
+            System.out.println("new BufferedInputStream(connection.getInputStream()):" + IDtext);
+
+            BitmapFactory.decodeStream(is, null, options);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            System.out.println("options.inSampleSize: " + options.inSampleSize);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            connection = (HttpURLConnection) imageURL.openConnection();
+            is = new BufferedInputStream(connection.getInputStream());
+            bitmap = BitmapFactory.decodeStream(is, null, options);
+            System.out.println("imgimg:  " + bitmap);
+            is.close();
+
+        } catch (IOException e) {
+            System.out.printf("decodeSampledBitmapFromStream Failed: %s\n", IDtext);
+        }
+        return bitmap;
+
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+        //System.out.println("calculateInSampleSize_imageHeight:  "+height);
+        //System.out.println("calculateInSampleSize_imageWidth:  "+width);
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        //System.out.println("calculateInSampleSize_inSampleSize:  "+inSampleSize);
+
+        return inSampleSize;
+    }
 
 
     static class ViewHolder {
