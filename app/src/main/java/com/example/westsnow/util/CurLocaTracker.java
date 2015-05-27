@@ -16,6 +16,7 @@ import android.graphics.BitmapFactory;
 
 
 import com.example.westsnow.myapplication.HomePage;
+import com.example.westsnow.myapplication.PersonalPage;
 import com.example.westsnow.myapplication.R;
 import com.example.westsnow.myapplication.Constant;
 import com.example.westsnow.myapplication.JSONParser;
@@ -75,14 +76,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         super.onStart();
         m_GoogleApiClient.connect();
         System.out.println("[Start !!!!]");
-        /*
-        MapUtil util = MapUtil.getInstance();
-        if (LocaChangeTracker.m_trackerroutes.size() > 0) {
-            System.out.println("[Start !!!!]" + LocaChangeTracker.m_trackerroutes);
-            util.drawRoutes(LocaChangeTracker.m_trackerroutes, m_map, 2);
-        } else
-            System.out.println("[Start !!!!] null ; null");
-            */
     }
 
     @Override
@@ -148,6 +141,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
     }
 
     protected synchronized void startTracker() { // called at click button
+        LocaChangeTracker.m_forceTrack = false;
         LocaChangeTracker tracker = new LocaChangeTracker(this);
         tracker.trackChangedLocation(this);
     }
@@ -262,32 +256,33 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
 
                     ImageView ivImage = ((ImageView) m_contentsView.findViewById(R.id.image));
 
-
                     Bitmap bitmap = new DownloadImageTask(ivImage).execute(imgUrl).get();
                     ivImage.setImageBitmap(bitmap);
                     ivImage.setClickable(true);
-                    ivImage.getLayoutParams().height = 250;
+                    ivImage.getLayoutParams().height = 200;
 
-                    m_map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
-                        public void onInfoWindowClick(Marker marker) {
-                            Log.i("LinkTimeLine", "Image button is pressed, visible in LogCat");
-                            Intent in = new Intent(getApplicationContext(),
-                                    TimeLine.class);
-                            // sending pid to next activity
-                            in.putExtra("username", username);
-                            in.putExtra("curlat", m_LastLocation.getLatitude());
-                            in.putExtra("curlng", m_LastLocation.getLongitude());
-
-                            // starting new activity
-                            startActivity(in);
-                        }
-                    });
                 }
                 else{
                     ImageView ivImage = ((ImageView) m_contentsView.findViewById(R.id.image));
                     ivImage.setImageBitmap(null);
                     ivImage.getLayoutParams().height = 0;
                 }
+                m_map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+                    public void onInfoWindowClick(Marker marker) {
+                        Log.i("LinkTimeLine", "Image button is pressed, visible in LogCat");
+                        Intent in = new Intent(getApplicationContext(),
+                                TimeLine.class);
+                        // sending pid to next activity
+                        in.putExtra("username", username);
+                        in.putExtra("curlat", m_LastLocation.getLatitude());
+                        in.putExtra("curlng", m_LastLocation.getLongitude());
+                        in.putExtra("startLocName", PersonalPage.startLocName);
+                        in.putExtra("endLocName",PersonalPage.endLocName);
+
+                        // starting new activity
+                        startActivity(in);
+                    }
+                });
 
 
                 return m_contentsView;

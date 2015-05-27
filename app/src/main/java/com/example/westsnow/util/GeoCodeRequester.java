@@ -87,13 +87,12 @@ public class GeoCodeRequester {
         if(endLoca == null){
             // no input of destination and do tracker- > wrong
         }
-
         sendMessage2Listener(startLoca,endLoca);
         return startEndLocs;
 
     }
 
-    protected void sendMessage2Listener(LatLng startLoca, LatLng endLoca){
+    public void sendMessage2Listener(LatLng startLoca, LatLng endLoca){
 
         LocaChangeTracker.m_startLocation = startLoca;
         LocaChangeTracker.m_endLocation = endLoca;

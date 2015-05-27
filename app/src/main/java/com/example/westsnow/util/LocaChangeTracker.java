@@ -27,13 +27,14 @@ import java.util.*;
 public class LocaChangeTracker extends CurLocaTracker{
 
     private static final String TAG = "GpsActivity";
-    private static final double DIST_DIFF_THRESHOLD = 7E-6; //0.000007   0.0000000007
-    private static final double RECORD_ROUTE_THRESHOLD = 7E-6; //0.000007   0.0000000007
+    private static final double DIST_DIFF_THRESHOLD = 0.001; //0.000007   0.0000000007
+    private static final double RECORD_ROUTE_THRESHOLD = 0.00001; //0.000007   0.0000000007
     private static final int DIST_INTERVAL = 1000; // 1m:1000
     private static final int TIME_INTERVAL = 1; // 30s:30
 
     public static LatLng m_startLocation;
     public static LatLng m_endLocation;
+    public static boolean m_forceTrack = false;
 
 
     public Location m_LastLocation;
@@ -72,19 +73,21 @@ public class LocaChangeTracker extends CurLocaTracker{
                 if(m_endLocation != null){
                     System.out.println("************** [Listener Get End Pos]"+m_endLocation.latitude+" ,"+m_endLocation.longitude);
                     System.out.println("************** [Listener Get cur Pos]"+location.getLatitude()+" ,"+location.getLongitude());
+                    System.out.println("************** [Force Track]"+m_forceTrack);
 
-                    int flag = ifReachDestination(location, lastLocation);
-                    if(flag == 2){
-                        System.out.println("************** Add Route ! **************");
-                        m_trackerroutes.add(loc); // enhance
-                    }
-                    else if(flag == 1){
-                        System.out.println("************** Reach Destination ! **************");
+                    int flagReach = ifReachDestination(location, m_endLocation,1);
+                    int flagRecord = ifReachDestination(location,lastLocation,2);
+                    if((flagReach == 1) ||(m_forceTrack)){
+                        System.out.println("************** Reach Destination or force track! **************");
                         m_trackerroutes =  new ArrayList<LatLng>();
                         m_manager.removeGpsStatusListener(listener);
                         m_manager.removeUpdates(locationListener);
 
                         return;
+                    }
+                    else if(flagRecord == 2){
+                        System.out.println("************** Add Route ! **************");
+                        m_trackerroutes.add(loc); // enhance
                     }
                 }
                 System.out.println("location changed!");
@@ -99,7 +102,6 @@ public class LocaChangeTracker extends CurLocaTracker{
                         .position(curLocation));
                         */
 
-                //Todo 5: save it to DB
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 Route route = new Route();
@@ -157,6 +159,7 @@ public class LocaChangeTracker extends CurLocaTracker{
                     break;
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                     System.out.println("GPS_EVENT_SATELLITE_STATUS!");
+                    //System.out.println("************** [Force Track]"+m_forceTrack);
                     //test code
                     /*
                     //m_manager.removeGpsStatusListener(listener);
@@ -250,7 +253,7 @@ public class LocaChangeTracker extends CurLocaTracker{
         return criteria;
     }
 
-    public int ifReachDestination(Location curLocation, LatLng destLocation){
+    public int ifReachDestination(Location curLocation, LatLng destLocation, int flag){
         double curLat = curLocation.getLatitude();
         double curLng = curLocation.getLongitude();
 
@@ -259,15 +262,23 @@ public class LocaChangeTracker extends CurLocaTracker{
 
         double latDiff = Math.abs(curLat - destLat);
         double lngDiff = Math.abs(curLng - desLng);
-        System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
-        if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
-            System.out.println("************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);//latDiff = 4.9900000007596645E-6 lngDiff = 1.2179999998807034E-5
-            return 1; // stop
-        }
-        else if((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) // keep record
-            return 2;
 
-        return 3;
+        if(flag == 1) {
+            double dis = Math.sqrt(latDiff * latDiff + lngDiff*lngDiff);
+            System.out.println("************** [1. Listener Get Diff]" + latDiff + " ," + lngDiff+"  ,"+dis);
+
+            if ((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
+                return 1; // stop
+            }
+        }
+        else if(flag == 2) {
+            if ((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) { // keep record
+                System.out.println("************** [2. Listener Get Diff]" + latDiff + " ," + lngDiff);
+                return 2;
+            }
+        }
+
+        return 0;
     }
 
     @Override

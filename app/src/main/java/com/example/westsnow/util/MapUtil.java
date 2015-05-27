@@ -348,5 +348,29 @@ public class MapUtil {
         //LocaChangeTracker.m_startLocation = null;
         //LocaChangeTracker.m_endLocation = null;
         LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
+        LocaChangeTracker.m_forceTrack = true;
+    }
+
+    public static void testAccuracy(){
+
+        double curLat = 40.7282239 ;
+        double curLng = -73.7948516;
+
+        double prevLat = 40.80932788;
+        double prevLng = -73.96123136;
+
+        double latDiff = Math.abs(curLat - prevLat);
+        double lngDiff = Math.abs(curLng - prevLng);
+
+        double DIST_DIFF_THRESHOLD =7E-6;
+        double RECORD_ROUTE_THRESHOLD = 7E-6 ;
+
+        if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
+            System.out.println("[diff 1 ************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);//latDiff = 4.9900000007596645E-6 lngDiff = 1.2179999998807034E-5
+
+        }
+        else if((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) // keep record
+            System.out.println("[diff 2 ************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
+
     }
 }
