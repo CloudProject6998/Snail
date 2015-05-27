@@ -79,7 +79,8 @@
         android:layout_margin="50dp"
         android:layout_weight="1"
         android:background="@drawable/shape_trans2"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/grey_trans"
+        android:textColor="@color/white"
         android:textSize="25sp"
         android:gravity="top">
     </EditText>

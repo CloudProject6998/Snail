@@ -203,8 +203,15 @@ public class HomePage extends ListActivity {
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
 
-            // Check your log cat for JSON reponse
-            Log.d("All friends: ", json.toString());
+
+
+            if (json != null) {
+                // Check your log cat for JSON reponse
+                Log.d("All friends: ", json.toString());
+            } else {
+                //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                return "null";
+            }
 
             following.add(username);
             try {
@@ -238,16 +245,25 @@ public class HomePage extends ListActivity {
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after getting all products
             pDialog.dismiss();
-            // updating UI from Background Thread
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    ArrayAdapter<String> codeLearnArrayAdapter =
-                            new ArrayAdapter<String>(HomePage.this, R.layout.grid_item, R.id.secondLine, following);
-                    String[] followingArr = new String[following.size()];
-                    CustomListAdapter customAdapter=new CustomListAdapter(HomePage.this, itemname, following.toArray(followingArr), imgid);
 
-                    //lv.setAdapter(codeLearnArrayAdapter);
-                    lv.setAdapter(customAdapter);
+            if (file_url != null) {
+                if (file_url.equals("null")) {
+                    Toast.makeText(HomePage.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(HomePage.this, file_url, Toast.LENGTH_LONG).show();
+                }
+            } else {
+
+                // updating UI from Background Thread
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        ArrayAdapter<String> codeLearnArrayAdapter =
+                                new ArrayAdapter<String>(HomePage.this, R.layout.grid_item, R.id.secondLine, following);
+                        String[] followingArr = new String[following.size()];
+                        CustomListAdapter customAdapter = new CustomListAdapter(HomePage.this, itemname, following.toArray(followingArr), imgid);
+
+                        //lv.setAdapter(codeLearnArrayAdapter);
+                        lv.setAdapter(customAdapter);
 //                    /**
 //                     * Updating parsed JSON data into ListView
 //                     * */
@@ -258,8 +274,9 @@ public class HomePage extends ListActivity {
 //                            new int[] { R.id.pid, R.id.name });
 //                    // updating listview
 //                    setListAdapter(adapter);
-                }
-            });
+                    }
+                });
+            }
         }
 
     }
@@ -275,7 +292,7 @@ public class HomePage extends ListActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(HomePage.this);
-            pDialog.setMessage("Attempting for add Friend...");
+            pDialog.setMessage("Attempting for adding new Friend...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -291,8 +308,16 @@ public class HomePage extends ListActivity {
                 params.add(new BasicNameValuePair("follower", username));
                 Log.d("friend request!", "starting");
                 JSONObject json = jParser.makeHttpRequest(addFriendURL, "GET", params);
-                // checking log for json response
-                Log.d("friend request attempt", json.toString());
+
+
+                if (json != null) {
+                    // checking log for json response
+                    Log.d("friend request attempt", json.toString());
+                } else {
+                    //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                    return "null";
+                }
+
                 // success tag for json
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
@@ -315,8 +340,13 @@ public class HomePage extends ListActivity {
          */
         protected void onPostExecute(String message) {
             pDialog.dismiss();
+
             if (message != null) {
-                Toast.makeText(HomePage.this, message, Toast.LENGTH_LONG).show();
+                if (message.equals("null")) {
+                    Toast.makeText(HomePage.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(HomePage.this, message, Toast.LENGTH_LONG).show();
+                }
             }
         }
     }

@@ -184,18 +184,6 @@ public class PersonalPage extends CurLocaTracker {
         getCurLocation();
         addCurMarker();
 
-        // set the buttons visible
-        View b = findViewById(R.id.buttons);
-        if (buttons_visible == false) {
-            b.setVisibility(View.VISIBLE);
-            buttons_visible = true;
-        }
-
-        // set the moment button unclickable
-        View moment = findViewById(R.id.sendButton);
-        if (moment_clicable == false) {
-            moment.setBackgroundResource(R.drawable.shape_red_trans);
-        }
 
 
         final EditText startText = (EditText)findViewById(R.id.start);
@@ -279,6 +267,20 @@ public class PersonalPage extends CurLocaTracker {
             }
         }).start();
 
+        if (!endValue.equals("")) {
+            // set the buttons visible
+            View b = findViewById(R.id.buttons);
+            if (buttons_visible == false) {
+                b.setVisibility(View.VISIBLE);
+                buttons_visible = true;
+            }
+
+            // set the moment button unclickable
+            View moment = findViewById(R.id.sendButton);
+            if (moment_clicable == false) {
+                moment.setBackgroundResource(R.drawable.shape_red_trans);
+            }
+        }
     }
 
     @Override

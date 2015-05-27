@@ -17,7 +17,8 @@
         android:layout_gravity="center"
         android:gravity="top"
         android:inputType="textMultiLine"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/grey_trans"
+        android:textColor="@color/white"
         android:textSize="25sp"
         android:background="@drawable/shape_trans2"
         android:ems="10" >

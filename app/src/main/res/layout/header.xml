@@ -5,9 +5,8 @@
 
     <ImageView
         android:id="@+id/header"
-        android:layout_width="600dp"
-        android:layout_height="310dp"
-        android:layout_marginTop="-10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:paddingBottom="0dp"
         android:src="@drawable/cover1" />
 

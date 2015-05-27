@@ -29,7 +29,8 @@
             android:layout_alignParentRight="true"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:textColorHint="@color/lightyellow"
+            android:textColorHint="@color/grey_trans"
+            android:textColor="@color/white"
             android:textSize="25sp"
             style="@style/EditTextCustomHolo" />
 
@@ -44,7 +45,7 @@
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/shape"
-            android:textColor="@color/lightyellow"/>
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

@@ -187,8 +187,14 @@ public class TimeLine extends ListActivity {
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
 
-            // Check your log cat for JSON reponse
-            Log.d("All moments: ", json.toString());
+            if (json != null) {
+                // Check your log cat for JSON reponse
+                Log.d("All moments: ", json.toString());
+            } else {
+                //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                return "null";
+
+            }
 
             try {
                 // Checking for SUCCESS TAG
@@ -231,18 +237,27 @@ public class TimeLine extends ListActivity {
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after getting all products
             pDialog.dismiss();
-            // updating UI from Background Thread
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    timelineAdapter = new TimelineAdapter(TimeLine.this, list);
-                    lv.setAdapter(timelineAdapter);
 
-                    lv = getListView();
-                    LayoutInflater inflater = getLayoutInflater();
-                    View header = inflater.inflate(R.layout.header, lv, false);
-                    lv.addHeaderView(header, null, false);
+            if (file_url != null) {
+                if (file_url.equals("null")) {
+                    Toast.makeText(TimeLine.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(TimeLine.this, file_url, Toast.LENGTH_LONG).show();
                 }
-            });
+            } else {
+                    // updating UI from Background Thread
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            timelineAdapter = new TimelineAdapter(TimeLine.this, list);
+                            lv.setAdapter(timelineAdapter);
+
+                            lv = getListView();
+                            LayoutInflater inflater = getLayoutInflater();
+                            View header = inflater.inflate(R.layout.header, lv, false);
+                            lv.addHeaderView(header, null, false);
+                        }
+                    });
+            }
         }
     }
 }

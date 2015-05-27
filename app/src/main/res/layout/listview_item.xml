@@ -2,7 +2,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingRight="20dp" >
+    android:paddingRight="20dp"
+    android:background="@color/grey_back">
 
     <!--<View-->
         <!--android:id="@+id/view_1"-->
@@ -51,7 +52,7 @@
         android:layout_marginLeft="1dp"
         android:layout_toRightOf="@+id/image"
         android:padding="10dp"
-        android:background="@drawable/shape_grey">
+        android:background="@drawable/shape_white">
 
 
         <TextView

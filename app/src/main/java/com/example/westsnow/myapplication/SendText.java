@@ -105,7 +105,7 @@ public class SendText extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(SendText.this);
-            pDialog.setMessage("Attempting for send moment...");
+            pDialog.setMessage("Attempting for sending moment...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -124,8 +124,18 @@ public class SendText extends Activity {
 
                 Log.d("request!", "starting");
                 JSONObject json = jsonParser.makeHttpRequest(URL, "GET", params);
-                // checking log for json response
-                Log.d("send moment attempt", json.toString());
+
+                if (json != null) {
+                    // checking log for json response
+                    Log.d("send moment attempt", json.toString());
+                    // success tag for json
+                    success = json.getInt(TAG_SUCCESS);
+                } else {
+                    //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                    return "null";
+
+                }
+
                 // success tag for json
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
@@ -155,7 +165,11 @@ public class SendText extends Activity {
         protected void onPostExecute(String message) {
             pDialog.dismiss();
             if (message != null) {
-                Toast.makeText(SendText.this, message, Toast.LENGTH_LONG).show();
+                if (message.equals("null")) {
+                    Toast.makeText(SendText.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(SendText.this, message, Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
