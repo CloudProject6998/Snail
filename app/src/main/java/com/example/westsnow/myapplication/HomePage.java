@@ -57,6 +57,8 @@ public class HomePage extends ListActivity {
 
     public double curLat;
     public double curLng;
+    public String endLocName;
+    public String startLocName;
 
     //add funtion of addFriend Button
     public void addFriend(View view){
@@ -96,6 +98,8 @@ public class HomePage extends ListActivity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         curLat = intent.getDoubleExtra("curlat",0);
         curLng = intent.getDoubleExtra("curlng",0);
+        startLocName = intent.getStringExtra("startLocName");
+        endLocName = intent.getStringExtra("endLocName");
 
 
 //        // create the grid item mapping
