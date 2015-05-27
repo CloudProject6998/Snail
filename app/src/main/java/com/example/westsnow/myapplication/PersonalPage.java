@@ -32,11 +32,14 @@ public class PersonalPage extends CurLocaTracker {
     public int m_drawLineType = 3; // type=1: draw google route , type =2: draw previous route , type =3: draw recommended routes
 
     public Location momentLoc ;
+    public static String startLocName;
+    public static String endLocName;
     public static boolean buttons_visible = false;
     public static boolean moment_clicable = false;
     public static boolean start_visible = true;
     public static boolean stop_visible = false;
     public static boolean upper_visible = true;
+
 
     public void SendPhoto() {
         Intent in = new Intent(getApplicationContext(),
@@ -48,8 +51,10 @@ public class PersonalPage extends CurLocaTracker {
         momentLoc = m_LastLocation;
         in.putExtra("curlat",m_LastLocation.getLatitude());
         in.putExtra("curlng",m_LastLocation.getLongitude());
-        Log.d("SendPhotoRouteID",String.valueOf(routeID));
-        in.putExtra("routeID",String.valueOf(routeID));
+        in.putExtra("endLocName",endLocName);
+        in.putExtra("startLocName",startLocName);
+        Log.d("SendPhotoRouteID", String.valueOf(routeID));
+        in.putExtra("routeID", String.valueOf(routeID));
 
         // starting new activity
         startActivity(in);
@@ -65,6 +70,9 @@ public class PersonalPage extends CurLocaTracker {
         in.putExtra("routeID",String.valueOf(routeID));
         in.putExtra("curlat", m_LastLocation.getLatitude());
         in.putExtra("curlng",m_LastLocation.getLongitude());
+
+        in.putExtra("endLocName", endLocName);
+        in.putExtra("startLocName", startLocName);
         // starting new activity
         startActivity(in);
     }
@@ -79,7 +87,6 @@ public class PersonalPage extends CurLocaTracker {
             Toast.makeText(context,text,duration).show();
             return;
         }
-
         android.widget.PopupMenu popup = new android.widget.PopupMenu(this, view);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.menu_send_popup, popup.getMenu());
@@ -103,10 +110,10 @@ public class PersonalPage extends CurLocaTracker {
     }
 
     public void trackRoute(View view) throws JSONException, ExecutionException, InterruptedException{
-        Log.d("trackRoute","here");
+        Log.d("trackRoute", "here");
         System.out.println("start tracker trackRoute");
         startTracker();
-        getCurLocation();
+        //getCurLocation();
 
         db = dbUtil.getInstance();
 
@@ -115,13 +122,24 @@ public class PersonalPage extends CurLocaTracker {
 
         String startValue = startText.getText().toString();
         String endValue = endText.getText().toString();
+
+        if (endValue.equals("")) {
+            if(!endLocName.equals("")){
+                endValue = endLocName;
+            }
+        }
+        if (startValue.equals("")) {
+            if(!startLocName.equals("")){
+                startValue = startLocName;
+            }
+        }
+
         double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(this, startValue, endValue, m_LastLocation);
         Route route = new Route();
 
         routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
 
         Log.d("getRouteID", String.valueOf(routeID));
-
         // set the moment button clickable
         View moment = findViewById(R.id.sendButton);
         if (moment_clicable == false) {
@@ -175,12 +193,14 @@ public class PersonalPage extends CurLocaTracker {
         Toast.makeText(context,text,duration).show();
 
         // todo: stop tracking manually
-
+        LocaChangeTracker.m_forceTrack = true;
     }
 
     public void GetRouteValue(View view) {
         // Update Location in time
         m_map.clear();
+        MapUtil.clearStoredMarkerRoutes();
+
         getCurLocation();
         addCurMarker();
 
@@ -191,6 +211,7 @@ public class PersonalPage extends CurLocaTracker {
 
         String startValue = startText.getText().toString();
         String endValue = endText.getText().toString();
+
         if (endValue.equals("")) {
             Context context = getApplicationContext();
             CharSequence text = "Please enter the start and end location";
@@ -200,6 +221,8 @@ public class PersonalPage extends CurLocaTracker {
         }else if(startValue.equals("")) {
             startValue = m_LastLocation.getLatitude()+","+m_LastLocation.getLongitude();
         }
+        endLocName = endValue;
+        startLocName = startValue;
 
         final MapUtil util = MapUtil.getInstance();
         final String startPosName = util.formatInputLoca(startValue);
@@ -266,27 +289,27 @@ public class PersonalPage extends CurLocaTracker {
             }
             }
         }).start();
-
         if (!endValue.equals("")) {
-            // set the buttons visible
+        // set the buttons visible
             View b = findViewById(R.id.buttons);
             if (buttons_visible == false) {
                 b.setVisibility(View.VISIBLE);
                 buttons_visible = true;
             }
-
             // set the moment button unclickable
             View moment = findViewById(R.id.sendButton);
             if (moment_clicable == false) {
                 moment.setBackgroundResource(R.drawable.shape_red_trans);
             }
         }
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_page);
+
         View b = findViewById(R.id.buttons);
         View moment = findViewById(R.id.sendButton);
         View stop = findViewById(R.id.stop);
@@ -296,7 +319,7 @@ public class PersonalPage extends CurLocaTracker {
         // show the buttons' according to their visibility
         if (buttons_visible == false) {
             b.setVisibility(View.GONE);
-        } else {
+        }else {
             b.setVisibility(View.VISIBLE);
         }
 
@@ -318,7 +341,6 @@ public class PersonalPage extends CurLocaTracker {
         if (upper_visible == false) {
             search.setVisibility(View.GONE);
         }
-
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         pageName = intent.getStringExtra("pageName");
@@ -326,7 +348,10 @@ public class PersonalPage extends CurLocaTracker {
         double lat = intent.getDoubleExtra("curlat", 0);
         double lng = intent.getDoubleExtra("curlng", 0);
 
-        System.out.println("[user]" + username + "[page]" + pageName + "[lat]" + lat + "[lng]" + lng);
+        endLocName = intent.getStringExtra("endLocName");
+        startLocName = intent.getStringExtra("startLocName");
+
+        System.out.println("[user]" + username + "[page]" + pageName + "[lat]" + lat + "[lng]" + lng +"[endloc]"+ endLocName + "[startloc]" + startLocName);
 
         Location newCurLoca = new Location("");
         newCurLoca.setLongitude(lng);
@@ -346,8 +371,7 @@ public class PersonalPage extends CurLocaTracker {
             }
             addExistedMarkers(prevFlag);
             MapUtil.getInstance().drawExistedLines();
-
-        } else {
+        }else {
             // from sign in/register, reset the buttons (set invisible)
             buttons_visible = false;
             b.setVisibility(View.GONE);
@@ -359,6 +383,7 @@ public class PersonalPage extends CurLocaTracker {
             // from sign in/register, reset the search bar (set visible)
             search.setVisibility(View.VISIBLE);
         }
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -387,6 +412,8 @@ public class PersonalPage extends CurLocaTracker {
             in.putExtra("routeID",String.valueOf(routeID));
             in.putExtra("curlat",m_LastLocation.getLatitude());
             in.putExtra("curlng",m_LastLocation.getLongitude());
+            in.putExtra("endLocName",endLocName);
+            in.putExtra("startLocName",startLocName);
             // starting new activity
             startActivity(in);
         }
