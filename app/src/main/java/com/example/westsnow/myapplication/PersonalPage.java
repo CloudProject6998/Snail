@@ -196,6 +196,7 @@ public class PersonalPage extends CurLocaTracker {
 
         // todo: stop tracking manually
         LocaChangeTracker.m_forceTrack = true;
+        dbUtil.getInstance().updateDes(CurLocaTracker.routeID+"", m_LastLocation.getLatitude()+"", m_LastLocation.getLongitude()+"");
     }
 
     public void GetRouteValue(View view) {
