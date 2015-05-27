@@ -152,15 +152,17 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             LatLng curLocation = new LatLng(m_LastLocation.getLatitude(), m_LastLocation.getLongitude());
             m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
-            //if (m_LastMarker != null)
-            //    m_LastMarker.remove();
+            /*
+            if (m_LastMarker != null)
+                m_LastMarker.remove();
 
-            //m_LastMarker = m_map.addMarker(new MarkerOptions()
-            //        .title("Current Location")
-            //        .snippet("Cur location")
-            //        .position(curLocation)
-            //        .alpha(0.9F)
-            //        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            m_LastMarker = m_map.addMarker(new MarkerOptions()
+                    .title("Current Location")
+                    .snippet("Cur location")
+                    .position(curLocation)
+                    .alpha(0.9F)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                    */
         }
     }
 
@@ -174,18 +176,25 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                 m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
 
                 int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
+                //int imageID = getResources().getIdentifier("transpin", "drawable", getPackageName());
 
                 JSONObject imgOb = dbUtil.getInstance().getImgUrl(username, lat, lng);
                 String imgUrl = imgOb.getString("imgURL");
                 String text = imgOb.getString("text");
                 MarkerOptions lastMomentMarkerOption = new MarkerOptions()
                         .title(text) // title put : imgUrl
-                        .snippet(imgUrl) //  snnipet put: text
+                        .snippet(imgUrl+" "+username) //  snnipet put: text
                         .icon(BitmapDescriptorFactory.fromResource(imageID))
                         .position(curLocation);
 
                 m_map.addMarker(lastMomentMarkerOption);
                 m_MomentMarkerOptions.add(lastMomentMarkerOption);
+
+                String[] tvSnnipet = lastMomentMarkerOption.getSnippet().split(" ");
+                String tvImgUrl = tvSnnipet[0];
+                String selectedUser = tvSnnipet[1];
+                System.out.println("[marker's username 2]" +username+" ,"+ tvImgUrl + " ," + selectedUser);
+
 
                 m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
 
@@ -199,7 +208,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         int len = m_MomentMarkerOptions.size();
         if(prevFlag == 1)
             len = len - 1;
-        if(len-1 > 0){
+        if(len > 0){
             for(int i=0;i<len;i++){
                 m_map.addMarker(m_MomentMarkerOptions.get(i));
             }
@@ -207,11 +216,13 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
     }
 
-    public void addExistedMarkers(JSONArray markerJSONArray){
+    public void addExistedMarkers(JSONObject markerJSONOb){
         try {
-            int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
-            for (int i = 0; i < markerJSONArray.length(); i++) {
-                JSONObject obj = markerJSONArray.getJSONObject(i);
+            int imageID = getResources().getIdentifier("redpin", "drawable", getPackageName());
+            String selectedUser = markerJSONOb.getString("userName");
+            JSONArray markerArr = markerJSONOb.getJSONArray("markerInfo");
+            for (int i = 0; i < markerArr.length(); i++) {
+                JSONObject obj = markerArr.getJSONObject(i);
                 double latitude = Double.parseDouble(obj.getString("latitude"));
                 double longitude = Double.parseDouble(obj.getString("longitude"));
                 String context = obj.getString("context");
@@ -220,17 +231,37 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                 LatLng curLocation = new LatLng(latitude, longitude);
                 MarkerOptions lastMomentMarkerOption = new MarkerOptions()
                         .title(context) // title put : imgUrl
-                        .snippet(imgURL) //  snnipet put: text
+                        .snippet(imgURL+" "+selectedUser) //  snnipet put: text
                         .icon(BitmapDescriptorFactory.fromResource(imageID))
                         .position(curLocation);
 
-
                 m_map.addMarker(lastMomentMarkerOption);
                 m_MomentMarkerOptions.add(lastMomentMarkerOption);
+
                 m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
             }
         }catch(JSONException e){
             e.printStackTrace();;
+        }
+    }
+
+    public void addStartEndMarker(LatLng curLoca, String picName){
+        if (curLoca != null) {
+            double lat = curLoca.latitude;
+            double lng = curLoca.longitude;
+            LatLng curLocation = new LatLng(lat, lng);
+
+            m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
+
+            //int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
+            int imageID = getResources().getIdentifier(picName, "drawable", getPackageName());
+
+            MarkerOptions lastMomentMarkerOption = new MarkerOptions()
+                    .title("End pos") // title put : imgUrl
+                    .icon(BitmapDescriptorFactory.fromResource(imageID))
+                    .position(curLocation);
+
+            m_map.addMarker(lastMomentMarkerOption);
         }
     }
 
@@ -246,9 +277,14 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
             // getting JSON string from URL
             dbUtil util = dbUtil.getInstance();
             try {
-                String tvImgUrl = marker.getSnippet();
+                String[] tvSnnipet = marker.getSnippet().split(" ");
+                String tvImgUrl = tvSnnipet[0];
+                String user = tvSnnipet[1];
+                //System.out.println("[marker's username 2]" +username+" ,"+ tvImgUrl + " ," + user);
+
+                final String selectedUser = user;
                 String text = marker.getTitle();
-                System.out.println("[set marker :imgurl" + tvImgUrl + " text" + text);
+
                 TextView ivText = (TextView) m_contentsView.findViewById(R.id.title);
                 ivText.setText(text);
                 if(!tvImgUrl.equals("-1")) {
@@ -276,6 +312,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                         in.putExtra("username", username);
                         in.putExtra("curlat", m_LastLocation.getLatitude());
                         in.putExtra("curlng", m_LastLocation.getLongitude());
+                        in.putExtra("selectedUser",selectedUser);
                         in.putExtra("startLocName", PersonalPage.startLocName);
                         in.putExtra("endLocName",PersonalPage.endLocName);
 
@@ -283,8 +320,6 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                         startActivity(in);
                     }
                 });
-
-
                 return m_contentsView;
 
             } catch (Exception e) {
