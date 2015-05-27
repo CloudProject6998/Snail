@@ -5,14 +5,6 @@
     android:paddingRight="20dp"
     android:background="@color/grey_back">
 
-    <!--<View-->
-        <!--android:id="@+id/view_1"-->
-        <!--android:layout_width="1dp"-->
-        <!--android:layout_height="10dp"-->
-        <!--android:layout_marginTop="35dp"-->
-        <!--android:layout_marginLeft="132dp"-->
-        <!--android:background="#000000"/>-->
-
     <TextView
         android:id="@+id/show_time"
         android:layout_width="115dp"
@@ -33,15 +25,6 @@
         android:src="@drawable/circle_wbg"
         android:paddingTop="30dp"/>
 
-    <!--<View-->
-        <!--android:id="@+id/view_2"-->
-        <!--android:layout_width="100dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_toRightOf="@+id/image"-->
-        <!--android:layout_marginLeft="131dp"-->
-        <!--android:background="#000000" />-->
-
-
     <RelativeLayout
         android:id="@+id/relative"
         android:layout_width="fill_parent"
@@ -55,62 +38,83 @@
         android:background="@drawable/shape_white">
 
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxEms="7"
-            android:paddingLeft="5dp"
-            android:paddingBottom="10dp"
-            android:singleLine="true"
-            android:text="tessttesttest"
-            android:textSize="25sp"
-            android:layout_alignParentLeft="true"
-            />
-
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/myimage"
-            android:layout_below="@+id/title"
-            android:layout_alignParentLeft="true"
-            />
-
         <LinearLayout
-            android:id="@+id/likeLayout"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:orientation="horizontal"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/background_eclipse">
-
-            <ImageView
-                android:id="@+id/zan"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/zan"
-                android:layout_alignParentRight="true"
-                />
+            android:id="@+id/textview"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:orientation = "vertical">
 
             <TextView
-                android:id="@+id/likesNum"
-                android:layout_width="20dp"
-                android:layout_height="40dp"
+                android:id="@+id/title"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxEms="7"
+                android:paddingLeft="5dp"
+                android:paddingBottom="10dp"
+                android:singleLine="true"
+                android:text="tessttesttest"
+                android:textSize="25sp"
                 android:layout_alignParentLeft="true"
-                android:text="7"
-                android:tag="0"/>
+                />
 
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/myimage"
+                android:layout_alignParentLeft="true"
+                />
+            </LinearLayout>
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="fill_parent"
+            android:layout_height="2px"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="2dp"
+            android:layout_below="@+id/textview"
+            android:background="@color/grey"/>
+
+        <LinearLayout
+            android:id="@+id/interact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/line">
+
+                <ImageView
+                    android:id="@+id/like"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/like"
+                    android:layout_alignParentRight="true" />
+
+                <TextView
+                    android:id="@+id/likesNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_alignParentLeft="true"
+                    android:text="7"
+                    android:textSize="20sp"
+                    android:tag="0"/>
+
+
+                <ImageView
+                    android:id="@+id/deleteBin"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_below="@+id/likeLayout"
+                    android:layout_marginLeft="7dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/trash"/>
 
         </LinearLayout>
-        <ImageView
-            android:id="@+id/deleteBin"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_below="@+id/likeLayout"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/bin"/>
+
 
     </RelativeLayout>
 

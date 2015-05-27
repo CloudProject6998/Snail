@@ -73,11 +73,12 @@ public class TimelineAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
+
         System.out.println(n++);
         if (convertView == null) {
             inflater = LayoutInflater.from(parent.getContext());
             convertView = inflater.inflate(R.layout.listview_item, null);
-            ImageView likesButton = (ImageView) convertView.findViewById(R.id.zan);
+            final ImageView likesButton = (ImageView) convertView.findViewById(R.id.like);
             likesButton.setClickable(true);
             likesButton.setFocusable(true);
             likesButton.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +105,7 @@ public class TimelineAdapter extends BaseAdapter {
                             myMap.put("click", 1);
                             myMap.put("pos", pos);
                             ltv.setTag(myMap);
+                            likesButton.setImageResource(R.drawable.liketrue);
 
                         } else {
                             num -= 1;
@@ -112,6 +114,7 @@ public class TimelineAdapter extends BaseAdapter {
                             myMap.put("click", 0);
                             myMap.put("pos", pos);
                             ltv.setTag(myMap);
+                            likesButton.setImageResource(R.drawable.like);
                         }
                         dbUtil db = dbUtil.getInstance();
                         db.addLikes(mid,clickStr);
