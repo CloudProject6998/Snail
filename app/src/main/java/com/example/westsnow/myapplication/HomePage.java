@@ -66,6 +66,7 @@ public class HomePage extends ListActivity {
     }
 
     String[] itemname ={
+            "My Profile",
             "Oguri Shun",
             "Sharon",
             "Roger Federer",

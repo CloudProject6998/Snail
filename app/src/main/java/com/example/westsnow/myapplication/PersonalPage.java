@@ -1,6 +1,7 @@
 package com.example.westsnow.myapplication;
 import com.example.westsnow.util.*;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -231,6 +232,13 @@ public class PersonalPage extends CurLocaTracker {
 
         final Context context = this;
 
+        final ProgressDialog pDialog;
+        pDialog = new ProgressDialog(PersonalPage.this);
+        pDialog.setMessage("loading recommended routes...");
+        pDialog.setIndeterminate(false);
+        pDialog.setCancelable(false);
+        pDialog.show();
+
         //When user press button, find route from start to end
         new Thread(new Runnable(){
             @Override
@@ -251,6 +259,8 @@ public class PersonalPage extends CurLocaTracker {
                 Route route = new Route();
                 double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context, startPosName, endPosName, m_LastLocation);
                 List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+                int count = 0;
+
                 if (recommendedRoutes != null) {
                     for (int i = 0; i < recommendedRoutes.size(); i++) {
                         long routeId = recommendedRoutes.get(i);
@@ -266,30 +276,83 @@ public class PersonalPage extends CurLocaTracker {
                                 }
                             });
                         }
+                        count++;
                     }
                 }
+                System.out.println("count=" + count);
+
+                if (count == 0) {
+                    showToast("No routes recommended temporarily!");
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        pDialog.dismiss();
+                    }
+                });
                 GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
             }catch (ExecutionException e) {
                 e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        pDialog.dismiss();
+                    }
+                });
             }catch (InterruptedException e) {
                 e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        pDialog.dismiss();
+                    }
+                });
             }catch(JSONException e){
                 e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        pDialog.dismiss();
+                    }
+                });
             }catch(SnailException e) {
                 if (e.getExDesp().equals(SnailException.EX_DESP_PathNotExist)) {
                     System.out.println("Path not exist");
-                    Looper.prepare();
-                    Toast.makeText(PersonalPage.this, "No path exists! Please re-search!", Toast.LENGTH_LONG).show();
-                    Looper.loop();
+                    showToast("No path exists! Please re-search!");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            pDialog.dismiss();
+                        }
+                    });
                 } else if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
                     System.out.println("No internet");
-                    Looper.prepare();
-                    Toast.makeText(PersonalPage.this, "No Internet! Please connect internet!", Toast.LENGTH_LONG).show();
-                    Looper.loop();
+                    showToast("No Internet! Please connect internet!");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            pDialog.dismiss();
+                        }
+                    });
                 }
             }
             }
         }).start();
+
+
+
         if (!endValue.equals("")) {
         // set the buttons visible
             View b = findViewById(R.id.buttons);
@@ -421,5 +484,13 @@ public class PersonalPage extends CurLocaTracker {
             startActivity(in);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void showToast(final String toast) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(PersonalPage.this, toast, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

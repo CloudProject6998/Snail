@@ -341,7 +341,7 @@ public class MapUtil {
         MapUtil.m_googleRoutes = new ArrayList<LatLng>();
 
         CurLocaTracker.m_MomentMarkerOptions =  new ArrayList<MarkerOptions>();
-        CurLocaTracker.m_LastMarker = null;
+        //CurLocaTracker.m_LastxMarker = null;
         //CurLocaTracker.m_startLocation = null;
         //CurLocaTracker.m_endLocation = null;
 
