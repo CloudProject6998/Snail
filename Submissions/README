@@ -1,0 +1,57 @@
+UNI: yt2443
+Project Team: Snail
+Team Member: Xianglu Kong(xk2122), Ying Tan (yt2443), Mengting Wu(mw2987), Diyue Xiao(dx2152)
+
+Test with the following environments
+    JDK 1.7.0_51
+    Android 4.4.2 (target machine API 19)
+    Google play API V3
+    Mac OS version 10.9.5
+
+How to deploy our software:
+Under the package Project/Snail/app/build/outputs/apk, there is a app-release-unaligned.apk, which can be installed on Android mobile phone 
+with version 4.4.2
+
+Different parts of our code:
+1) com.example.westsnow.myapplication: 
+
+Files under this directory shows the front side of our application. Each class represents a page, with a corresponding configuration xml file
+under directory res, including classes: MainActivity, Register, PersonalPage, HomePage, SendMoment, SendText, TimeLine, TimeLineAdapter and 
+CustomListAdapter. 
+- MainActivity.java is the first page where user can login in to personal page. 
+- Register.java is a register page. 
+- PersonalPage.java is the page to show google map and track user's routes, and show the user's friends' routes on google map.
+- HomePage.java is the page to show the user's friends lists.
+- SendMoment.java is the page to send user's photos to moments
+- SendText.java is the page to send  user's texts to moments
+- TimeLine.java is the page to show user's actvities chronologically
+
+
+2) com.example.westsnow.util:
+
+In util package, we have help functions to show google map and implement route recommendations. 
+- Constant.java stores constants
+- JsonParser.java to parse json data
+- dbUtil.java to connect RDS on AWS
+- MapUtil.java to provides help functions to show google map
+- CurLocaTracker.java to track user's current location and show it on google map
+- LocaChangeTracker.java to add location and gps listener and track changes of user's current location
+- Route.java to implement recommendation algorithm of best routes 
+- SnailException.java to show Snail specific exceptions
+
+
+3) com.example.westsnow.unittest
+
+In unittest package, we implement unit test on different components
+- TestFindPos.java to test if can find a position according to user's provided location name using google direction API
+- TestMaps.java to test if map can be shown correctly
+
+4) dbServer
+
+We deploy our server on EC2 instance. We implments server in php. Server transfers user's infomation and geologic location information to 
+RDS database on AWS.
+
+
+
+
+
