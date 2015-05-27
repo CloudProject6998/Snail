@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import com.example.westsnow.myapplication.PersonalPage;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.*;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 
 /**
@@ -269,7 +271,7 @@ public class MapUtil {
                 polyLineOptions_2.width(6);
                 polyLineOptions_2.color(color_1);
             }
-            map.addMarker(new MarkerOptions().title("Destination").position(endPos));
+            map.addMarker(new MarkerOptions().title(PersonalPage.endLocName).position(endPos));
         }
         else if(lineType == 2){// draw previous line : blue
             int color_2 = Color.rgb(0, 152, 252);
@@ -285,7 +287,8 @@ public class MapUtil {
 
             }
         } else if (lineType == 3){ //draw recommendation route
-            int color_3 = Color.rgb(255, 128, 0);
+            //int color_3 = Color.rgb(255, 128, 0);
+            int color_3 = Color.rgb(102,204,0);
             for (LatLng route : routes) {
                 polyLineOptions.add(route);
                 polyLineOptions.width(10);
@@ -314,14 +317,12 @@ public class MapUtil {
                     List<LatLng> routePoints = route.routePoints(prevRecomRoutes.get(i));
                     if (routePoints != null) {
                         util.drawRoutes(routePoints, map, 3);
-                        //Todo: draw existed markers
                     }
                 }
             }
             if (LocaChangeTracker.m_trackerroutes.size() > 0) {
                 System.out.println("[refill previous route !!!!]" + LocaChangeTracker.m_trackerroutes);
                 util.drawRoutes(LocaChangeTracker.m_trackerroutes, map, 2);
-                //Todo: draw tracked routes with marker
             }
         }catch (ExecutionException e) {
             e.printStackTrace();
@@ -340,8 +341,8 @@ public class MapUtil {
     public static void clearStoredMarkerRoutes(){
         MapUtil.m_googleRoutes = new ArrayList<LatLng>();
 
-        CurLocaTracker.m_MomentMarkerOptions =  new ArrayList<MarkerOptions>();
-        //CurLocaTracker.m_LastxMarker = null;
+        CurLocaTracker.m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
+        CurLocaTracker.m_LastMarker = null;
         //CurLocaTracker.m_startLocation = null;
         //CurLocaTracker.m_endLocation = null;
 
@@ -351,26 +352,21 @@ public class MapUtil {
         LocaChangeTracker.m_forceTrack = true;
     }
 
-    public static void testAccuracy(){
-
-        double curLat = 40.7282239 ;
-        double curLng = -73.7948516;
-
-        double prevLat = 40.80932788;
-        double prevLng = -73.96123136;
-
-        double latDiff = Math.abs(curLat - prevLat);
-        double lngDiff = Math.abs(curLng - prevLng);
-
-        double DIST_DIFF_THRESHOLD =7E-6;
-        double RECORD_ROUTE_THRESHOLD = 7E-6 ;
-
-        if((latDiff < DIST_DIFF_THRESHOLD) && (lngDiff < DIST_DIFF_THRESHOLD)) {
-            System.out.println("[diff 1 ************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);//latDiff = 4.9900000007596645E-6 lngDiff = 1.2179999998807034E-5
-
+    public static void storeUsefulRoutes(List<LatLng> routes, dbUtil db, double[] startEndLocs, Route route, String username){
+        try {
+            long routeID = route.createNewRoute(db, username, startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
+            for(LatLng r: routes){
+                db.insertPosition(routeID+"", r.latitude+"", r.longitude+"");
+            }
+        }catch(JSONException e){
+            e.printStackTrace();
         }
-        else if((latDiff >= RECORD_ROUTE_THRESHOLD) || (lngDiff >= RECORD_ROUTE_THRESHOLD)) // keep record
-            System.out.println("[diff 2 ************** [Listener Get Diff]"+latDiff+" ,"+lngDiff);
-
+        catch(ExecutionException e){
+            e.printStackTrace();
+        }
+        catch(InterruptedException e){
+            e.printStackTrace();
+        }
     }
+
 }

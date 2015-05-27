@@ -38,10 +38,12 @@ public class Route {
         if (StartEndPairs != null) {
             Log.d("getStartEndPairs", StartEndPairs.toString());
             for (int i = 0; i < StartEndPairs.length(); i++) {
+                Log.d("length",String.valueOf(StartEndPairs.length()));
                 JSONObject c = StartEndPairs.getJSONObject(i);
                 String routeID = c.getString("routeID");
 
                 JSONArray posPairs = db.getRoute(routeID.toString());
+                Log.d("posPairs",posPairs.toString());
                 if((posPairs == null) || (posPairs.length() == 0))
                     continue;
                 String userName = c.getString("userName");

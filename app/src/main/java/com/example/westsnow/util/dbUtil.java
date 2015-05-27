@@ -2,13 +2,20 @@ package com.example.westsnow.util;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.example.westsnow.myapplication.Constant;
 import com.example.westsnow.myapplication.JSONParser;
+import com.example.westsnow.myapplication.PersonalPage;
+import com.google.android.gms.games.internal.api.SnapshotsImpl;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.SAXNotRecognizedException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +33,7 @@ public class dbUtil {
     private static final String getPosURL = Constant.serverDNS + "/getroute.php";
     private static final String addStartEndURL = Constant.serverDNS + "/addStartEnd.php";
     private static final String getStartEndURL = Constant.serverDNS + "/getStartEnd.php";
-    private static final String getImgURL =  Constant.serverDNS + "/getImgUrl.php";
+    private static final String getImgURL = Constant.serverDNS + "/getImgUrl.php";
 
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSAGE = "message";
@@ -47,11 +54,12 @@ public class dbUtil {
 
     private static dbUtil m_instance = null;
 
-    private dbUtil(){
+    private dbUtil() {
 
     }
-    public static dbUtil getInstance(){
-        if(m_instance == null)
+
+    public static dbUtil getInstance() {
+        if (m_instance == null)
             m_instance = new dbUtil();
 
         return m_instance;
@@ -64,6 +72,7 @@ public class dbUtil {
         passing.add(userId);
         new addCommentByMid().execute(passing);
     }
+
     public JSONArray getCommentList(String mid) throws ExecutionException, InterruptedException {
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(mid);
@@ -71,25 +80,29 @@ public class dbUtil {
 
     }
 
-    class LoadCommentByMid extends AsyncTask<ArrayList<String>, String,  JSONArray> {
+    class LoadCommentByMid extends AsyncTask<ArrayList<String>, String, JSONArray> {
 
-        protected  JSONArray doInBackground(ArrayList<String>... passing) {
+        protected JSONArray doInBackground(ArrayList<String>... passing) {
             ArrayList<String> passed = passing[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("mid", passed.get(0)));
             String getMakerURL = Constant.serverDNS + "/getComment.php";
-            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
-            Log.d("GetCommentJson",json.toString());
             try {
+                JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+                Log.d("GetCommentJson", json.toString());
+
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("success","yes");
+                    Log.d("success", "yes");
                     JSONArray comments = json.getJSONArray("comments");
                     return comments;
                 } else {
-                    Log.d("success","no");
+                    Log.d("success", "no");
                     return null;
                 }
+            } catch (SnailException e) {
+
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -112,13 +125,14 @@ public class dbUtil {
                 JSONObject json = jParser.makeHttpRequest(deleteURL, "GET", params);
                 //Log.d("InsertStartEndAttempt:", json.toString());
                 return json.getString("message");
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
         }
     }
-
 
 
     public void deleteMoment(String mid) {
@@ -139,6 +153,8 @@ public class dbUtil {
                 JSONObject json = jParser.makeHttpRequest(deleteURL, "GET", params);
                 //Log.d("InsertStartEndAttempt:", json.toString());
                 return json.getString("message");
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -167,6 +183,10 @@ public class dbUtil {
                 JSONObject json = jParser.makeHttpRequest(addLikesURL, "GET", params);
                 //Log.d("InsertStartEndAttempt:", json.toString());
                 return json.getString("message");
+            } catch (SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -181,9 +201,9 @@ public class dbUtil {
 
     }
 
-    class LoadMakerByRoute extends AsyncTask<ArrayList<String>, String,  JSONObject> {
+    class LoadMakerByRoute extends AsyncTask<ArrayList<String>, String, JSONObject> {
 
-        protected  JSONObject doInBackground(ArrayList<String>... passing) {
+        protected JSONObject doInBackground(ArrayList<String>... passing) {
             //http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/getMarker.php?routeID=237
             /*
             {
@@ -204,13 +224,13 @@ public class dbUtil {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("routeID", passed.get(0)));
             String getMakerURL = Constant.serverDNS + "/getMarker.php";
-            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
-
-            Log.d("GetMakerHttp",json.toString());
             try {
+                JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+
+                Log.d("GetMakerHttp", json.toString());
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("success","yes");
+                    Log.d("success", "yes");
                     //JSONArray markerInfo = json.getJSONArray("markerInfo");
                     //Log.d("jsonArray",markerInfo.toString());
                     //if (markerInfo.length() == 0) {
@@ -220,8 +240,12 @@ public class dbUtil {
                     //}
                     return json;
                 } else {
-                    Log.d("success","no");
+                    Log.d("success", "no");
                     return null;
+                }
+            } catch (SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -242,23 +266,24 @@ public class dbUtil {
         return ret;
     }
 
-    class AttemptGetImgUrl extends AsyncTask<ArrayList<String>, String,  JSONObject> {
+    class AttemptGetImgUrl extends AsyncTask<ArrayList<String>, String, JSONObject> {
 
-        protected  JSONObject doInBackground(ArrayList<String>... passing) {
+        protected JSONObject doInBackground(ArrayList<String>... passing) {
             ArrayList<String> passed = passing[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("username", passed.get(0)));
             params.add(new BasicNameValuePair("latitude", passed.get(1)));
             params.add(new BasicNameValuePair("longitude", passed.get(2)));
-            JSONObject json = jParser.makeHttpRequest(getImgURL, "GET", params);
-
-            Log.d("GetImgJson",json.toString());
             try {
+                JSONObject json = jParser.makeHttpRequest(getImgURL, "GET", params);
+
+                Log.d("GetImgJson", json.toString());
+
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
-                    Log.d("success","yes");
+                    Log.d("success", "yes");
                     JSONArray moments = json.getJSONArray("moments");
-                    Log.d("jsonArray",moments.toString());
+                    Log.d("jsonArray", moments.toString());
                     if (moments.length() == 0) {
                         return null;
                     } else {
@@ -269,8 +294,12 @@ public class dbUtil {
                         //return ret.getString(0);
                     }
                 } else {
-                    Log.d("success whether","no");
+                    Log.d("success whether", "no");
                     return null;
+                }
+            } catch (SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -309,7 +338,7 @@ public class dbUtil {
         dbUtil.positions = new LoadALlPositions().execute().get();
 
         if (dbUtil.positions == null) {
-            Log.d("getRouteAttemptStatus:" , "null");
+            Log.d("getRouteAttemptStatus:", "null");
             return null;
         } else {
             //Log.d("get positions", dbUtil.positions.toString());
@@ -336,7 +365,7 @@ public class dbUtil {
         dbUtil.StartEndPairs = new LoadALlStartEnd().execute().get();
 
         if (dbUtil.StartEndPairs == null) {
-            Log.d("dbUtil status:" , "null");
+            Log.d("dbUtil status:", "null");
             return null;
         } else {
             Log.d("getStartEndPairs", dbUtil.StartEndPairs.toString());
@@ -365,15 +394,18 @@ public class dbUtil {
                 }
             */
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            JSONObject json = jParser.makeHttpRequest(getStartEndURL, "GET", params);
-            //Log.d("AllStartEnd: ", json.toString());
             try {
+                JSONObject json = jParser.makeHttpRequest(getStartEndURL, "GET", params);
+                //Log.d("AllStartEnd: ", json.toString());
+
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     //Log.d("success whether","yes");
                     JSONArray ret = json.getJSONArray("StartEndPairs");
                     return ret;
                 }
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -413,10 +445,12 @@ public class dbUtil {
                 params.add(new BasicNameValuePair("eLong", passed.get(4)));
 
                 JSONObject json = jParser.makeHttpRequest(addStartEndURL, "GET", params);
-                Log.d("insertStartEnd",json.getString("message"));
+                Log.d("insertStartEnd", json.getString("message"));
                 //Log.d("InsertStartEndAttempt:", json.toString());
                 String getRouteID = json.getString("routeID");
                 return getRouteID;
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -433,16 +467,19 @@ public class dbUtil {
 
         protected JSONArray doInBackground(String... args) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("routeID", routeID));
-            JSONObject json = jParser.makeHttpRequest(getPosURL, "GET", params);
-            //Log.d("RoutePositions: ", json.toString());
             try {
+                params.add(new BasicNameValuePair("routeID", routeID));
+                JSONObject json = jParser.makeHttpRequest(getPosURL, "GET", params);
+                //Log.d("RoutePositions: ", json.toString());
+
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     //Log.d("Enter here ", "right");
                     JSONArray ret = json.getJSONArray("positions");
                     return ret;
                 }
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -474,6 +511,8 @@ public class dbUtil {
                 Log.d("InsertPosAttempt:", json.toString());
 
                 return json.getString(TAG_MESSAGE) + "~";
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -497,9 +536,9 @@ public class dbUtil {
         new updateDesTask().execute(passing);
     }
 
-    class updateDesTask extends AsyncTask<ArrayList<String>, String,  String> {
+    class updateDesTask extends AsyncTask<ArrayList<String>, String, String> {
 
-        protected  String doInBackground(ArrayList<String>... passing) {
+        protected String doInBackground(ArrayList<String>... passing) {
             //http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/updateDes.php?routeID=247&eLatt=40.80948457&eLong=-73.96191687
             ArrayList<String> passed = passing[0];
             List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -507,13 +546,13 @@ public class dbUtil {
             params.add(new BasicNameValuePair("eLatt", passed.get(1)));
             params.add(new BasicNameValuePair("eLong", passed.get(2)));
             String getMakerURL = Constant.serverDNS + "/updateDes.php";
-
-            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
-            Log.d("GetUpdateJson",json.toString());
             String ret = null;
-
             try {
+                JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+                Log.d("GetUpdateJson", json.toString());
                 ret = json.getString("message");
+            } catch (SnailException e) {
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -521,5 +560,6 @@ public class dbUtil {
             return ret;
         }
     }
+
 
 }

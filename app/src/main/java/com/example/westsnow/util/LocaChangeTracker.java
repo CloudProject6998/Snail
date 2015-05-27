@@ -13,7 +13,9 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.westsnow.myapplication.PersonalPage;
 import com.example.westsnow.util.Route;
 import com.google.android.gms.maps.model.*;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -27,7 +29,7 @@ import java.util.*;
 public class LocaChangeTracker extends CurLocaTracker{
 
     private static final String TAG = "GpsActivity";
-    private static final double DIST_DIFF_THRESHOLD = 0.001; //0.000007   0.0000000007
+    private static final double DIST_DIFF_THRESHOLD = 0.0008; //0.000007   0.0000000007
     private static final double RECORD_ROUTE_THRESHOLD = 0.00001; //0.000007   0.0000000007
     private static final int DIST_INTERVAL = 1000; // 1m:1000
     private static final int TIME_INTERVAL = 1; // 30s:30
@@ -286,6 +288,8 @@ public class LocaChangeTracker extends CurLocaTracker{
         super.onDestroy();
         m_manager.removeUpdates(locationListener);
     }
+
+
 
 
 }

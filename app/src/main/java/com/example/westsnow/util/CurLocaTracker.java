@@ -151,29 +151,29 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         if (m_LastLocation != null) {
             LatLng curLocation = new LatLng(m_LastLocation.getLatitude(), m_LastLocation.getLongitude());
             m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
+            int imageID = getResources().getIdentifier("start", "drawable", getPackageName());
 
-            /*
+
             if (m_LastMarker != null)
                 m_LastMarker.remove();
 
             m_LastMarker = m_map.addMarker(new MarkerOptions()
                     .title("Current Location")
-                    .snippet("Cur location")
                     .position(curLocation)
                     .alpha(0.9F)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-                    */
+                    .icon(BitmapDescriptorFactory.fromResource(imageID)));
+
         }
     }
 
-    public void addMomentMarker(Location curLoca) {
+    public void addMomentMarker(Location curLoca) { // add moment marker on current path
         if (curLoca != null) {
             try {
                 double lat = curLoca.getLatitude();
                 double lng = curLoca.getLongitude();
                 LatLng curLocation = new LatLng(lat, lng);
 
-                m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
+                m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 30));
 
                 int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
                 //int imageID = getResources().getIdentifier("transpin", "drawable", getPackageName());
@@ -216,7 +216,7 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
     }
 
-    public void addExistedMarkers(JSONObject markerJSONOb){
+    public void addExistedMarkers(JSONObject markerJSONOb){ // draw recommended routes
         try {
             int imageID = getResources().getIdentifier("redpin", "drawable", getPackageName());
             String selectedUser = markerJSONOb.getString("userName");
@@ -231,12 +231,14 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
                 LatLng curLocation = new LatLng(latitude, longitude);
                 MarkerOptions lastMomentMarkerOption = new MarkerOptions()
                         .title(context) // title put : imgUrl
-                        .snippet(imgURL+" "+selectedUser) //  snnipet put: text
+                        .snippet(imgURL + " " + selectedUser) //  snnipet put: text
                         .icon(BitmapDescriptorFactory.fromResource(imageID))
                         .position(curLocation);
 
                 m_map.addMarker(lastMomentMarkerOption);
                 m_MomentMarkerOptions.add(lastMomentMarkerOption);
+
+
 
                 m_map.setInfoWindowAdapter(new MyInfoWindowAdapter());
             }
@@ -245,19 +247,24 @@ public class CurLocaTracker extends ActionBarActivity implements OnMapReadyCallb
         }
     }
 
-    public void addStartEndMarker(LatLng curLoca, String picName){
+    public void addStartEndMarker(LatLng curLoca, String picName){ // draw start and end position of recomended routes
         if (curLoca != null) {
             double lat = curLoca.latitude;
             double lng = curLoca.longitude;
             LatLng curLocation = new LatLng(lat, lng);
-
-            m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(curLocation, 13));
-
             //int imageID = getResources().getIdentifier("snail", "drawable", getPackageName());
             int imageID = getResources().getIdentifier(picName, "drawable", getPackageName());
 
+            String title = "";
+            if(picName.equals("s")){
+                title = "start pos";
+                m_map.moveCamera(CameraUpdateFactory.newLatLngZoom(m_startLocation, 20));
+            }
+            else
+                title = "end pos";
+
             MarkerOptions lastMomentMarkerOption = new MarkerOptions()
-                    .title("End pos") // title put : imgUrl
+                    .title(title) // title put : imgUrl
                     .icon(BitmapDescriptorFactory.fromResource(imageID))
                     .position(curLocation);
 
