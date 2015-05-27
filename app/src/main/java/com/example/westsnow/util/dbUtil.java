@@ -57,6 +57,95 @@ public class dbUtil {
         return m_instance;
     }
 
+    public void addComment(String mid, String text, String userId) {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(mid);
+        passing.add(text);
+        passing.add(userId);
+        new addCommentByMid().execute(passing);
+    }
+    public JSONArray getCommentList(String mid) throws ExecutionException, InterruptedException {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(mid);
+        return new LoadCommentByMid().execute(passing).get();
+
+    }
+
+    class LoadCommentByMid extends AsyncTask<ArrayList<String>, String,  JSONArray> {
+
+        protected  JSONArray doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0];
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("mid", passed.get(0)));
+            String getMakerURL = Constant.serverDNS + "/getComment.php";
+            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+            Log.d("GetCommentJson",json.toString());
+            try {
+                int success = json.getInt(TAG_SUCCESS);
+                if (success == 1) {
+                    Log.d("success","yes");
+                    JSONArray comments = json.getJSONArray("comments");
+                    return comments;
+                } else {
+                    Log.d("success","no");
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
+    class addCommentByMid extends AsyncTask<ArrayList<String>, String, String> {
+        @Override
+        protected String doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0];
+            try {
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("mid", passed.get(0)));
+                params.add(new BasicNameValuePair("text", passed.get(1)));
+                params.add(new BasicNameValuePair("userId", passed.get(2)));
+                String deleteURL = Constant.serverDNS + "/addComment.php";
+
+                JSONObject json = jParser.makeHttpRequest(deleteURL, "GET", params);
+                //Log.d("InsertStartEndAttempt:", json.toString());
+                return json.getString("message");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
+
+    public void deleteMoment(String mid) {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(mid);
+        new deleteMomentByMid().execute(passing);
+    }
+
+    class deleteMomentByMid extends AsyncTask<ArrayList<String>, String, String> {
+        @Override
+        protected String doInBackground(ArrayList<String>... passing) {
+            ArrayList<String> passed = passing[0];
+            try {
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("mid", passed.get(0)));
+                String deleteURL = Constant.serverDNS + "/delete.php";
+
+                JSONObject json = jParser.makeHttpRequest(deleteURL, "GET", params);
+                //Log.d("InsertStartEndAttempt:", json.toString());
+                return json.getString("message");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     public void addLikes(String mid, String click) {
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(mid);
@@ -83,22 +172,22 @@ public class dbUtil {
             }
             return null;
         }
-
     }
 
-    public JSONArray getMarkerList(String routeID) throws ExecutionException, InterruptedException {
+    public JSONObject getMarkerList(String routeID) throws ExecutionException, InterruptedException {
         ArrayList<String> passing = new ArrayList<String>();
         passing.add(routeID);
         return new LoadMakerByRoute().execute(passing).get();
 
     }
 
-    class LoadMakerByRoute extends AsyncTask<ArrayList<String>, String,  JSONArray> {
+    class LoadMakerByRoute extends AsyncTask<ArrayList<String>, String,  JSONObject> {
 
-        protected  JSONArray doInBackground(ArrayList<String>... passing) {
+        protected  JSONObject doInBackground(ArrayList<String>... passing) {
             //http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/getMarker.php?routeID=237
             /*
             {
+                userName "",
                 markerInfo: [
                     {
                         latitude: "40.8090246",
@@ -122,13 +211,14 @@ public class dbUtil {
                 int success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
                     Log.d("success","yes");
-                    JSONArray markerInfo = json.getJSONArray("markerInfo");
-                    Log.d("jsonArray",markerInfo.toString());
-                    if (markerInfo.length() == 0) {
-                        return null;
-                    } else {
-                        return markerInfo;
-                    }
+                    //JSONArray markerInfo = json.getJSONArray("markerInfo");
+                    //Log.d("jsonArray",markerInfo.toString());
+                    //if (markerInfo.length() == 0) {
+                    //    return null;
+                    //} else {
+                    //    return markerInfo;
+                    //}
+                    return json;
                 } else {
                     Log.d("success","no");
                     return null;
@@ -254,8 +344,6 @@ public class dbUtil {
         }
     }
 
-
-
     class LoadALlStartEnd extends AsyncTask<String, String, JSONArray> {
 
         protected JSONArray doInBackground(String... args) {
@@ -303,7 +391,6 @@ public class dbUtil {
 
 
     class InsertStartEnd extends AsyncTask<ArrayList<String>, String, String> {
-        boolean failure = false;
 
         /*
     http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/addStartEnd.php?routeID=3&sLatt=40.209578
@@ -397,6 +484,41 @@ public class dbUtil {
             if (message != null) {
                 System.out.println(message);
             }
+        }
+
+    }
+
+
+    public void updateDes(String routeID, String eLatt, String eLong) {
+        ArrayList<String> passing = new ArrayList<String>();
+        passing.add(routeID);
+        passing.add(eLatt);
+        passing.add(eLong);
+        new updateDesTask().execute(passing);
+    }
+
+    class updateDesTask extends AsyncTask<ArrayList<String>, String,  String> {
+
+        protected  String doInBackground(ArrayList<String>... passing) {
+            //http://ec2-52-24-19-59.us-west-2.compute.amazonaws.com/updateDes.php?routeID=247&eLatt=40.80948457&eLong=-73.96191687
+            ArrayList<String> passed = passing[0];
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("routeID", passed.get(0)));
+            params.add(new BasicNameValuePair("eLatt", passed.get(1)));
+            params.add(new BasicNameValuePair("eLong", passed.get(2)));
+            String getMakerURL = Constant.serverDNS + "/updateDes.php";
+
+            JSONObject json = jParser.makeHttpRequest(getMakerURL, "GET", params);
+            Log.d("GetUpdateJson",json.toString());
+            String ret = null;
+
+            try {
+                ret = json.getString("message");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return ret;
         }
     }
 
