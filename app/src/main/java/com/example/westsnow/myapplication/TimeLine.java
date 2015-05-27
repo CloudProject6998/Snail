@@ -64,8 +64,10 @@ public class TimeLine extends ListActivity {
         setContentView(R.layout.activity_time_line);
 
         Intent intent = getIntent();
+
         username = intent.getStringExtra("username");
         selectedUser = intent.getStringExtra("selectedUser");
+
         curLat = intent.getDoubleExtra("curlat", 0);
         curLng = intent.getDoubleExtra("curlng", 0);
 
@@ -76,62 +78,13 @@ public class TimeLine extends ListActivity {
 
         lv = getListView();
         lv.setDividerHeight(0);
+        lv.setItemsCanFocus(true);
+        lv.setFocusable(false);
+        lv.setFocusableInTouchMode(false);
+        lv.setClickable(false);
+
         new LoadAllMoments().execute();
 
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // getting values from selected ListItem
-                //Log.d("click","here");
-                TextView v = (TextView) view.findViewById(R.id.likesNum);
-                String text =v.getText().toString();
-                int num = Integer.valueOf(text);
-
-
-                //List<Map<String, Object>> tagList = v.getTag().toString();
-                String tag = v.getTag().toString();
-                try {
-                    JSONObject obj = new JSONObject(tag);
-                    int click = obj.getInt("click");
-                    int pos = obj.getInt("pos");
-                    String mid = list.get(Integer.valueOf(pos)).get("mid").toString();
-                    String clickStr = String.valueOf(click);
-                    Log.d("mid",mid);
-                    Log.d("click",clickStr);
-                    if (click == 0) {
-                        num += 1;
-                        v.setText(String.valueOf(num));
-                        Map<String, Object> myMap = new HashMap<String, Object>();
-                        myMap.put("click", 1);
-                        myMap.put("pos", pos);
-                        v.setTag(myMap);
-
-                    } else {
-                        num -= 1;
-                        v.setText(String.valueOf(num));
-                        Map<String, Object> myMap = new HashMap<String, Object>();
-                        myMap.put("click", 0);
-                        myMap.put("pos", pos);
-                        v.setTag(myMap);
-                    }
-                    db = dbUtil.getInstance();
-                    db.addLikes(mid,clickStr);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                //Log.d("tagis",tag);
-                //String mid = list.get(Integer.valueOf(tag)).get("mid").toString();
-                //Log.d("mid",mid);
-                //db = dbUtil.getInstance();
-                //db.addLikes(mid);
-                //Log.d("tag",tag);
-                //Log.d("text",text);
-
-            }
-        });
     }
 
     @Override
@@ -155,7 +108,7 @@ public class TimeLine extends ListActivity {
             Log.d("timeline","here");
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName", "timeLine"); //Todo
+            upIntent.putExtra("pageName", "timeLine");
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
             upIntent.putExtra("endLocName", endLocName);
@@ -189,7 +142,7 @@ public class TimeLine extends ListActivity {
         protected String doInBackground(String... args) {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("email", username));
+            params.add(new BasicNameValuePair("email", selectedUser));
 
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
@@ -227,6 +180,11 @@ public class TimeLine extends ListActivity {
                         map.put("imageLocation", imageLocation );
                         map.put("likes",likes); //diyue
                         map.put("mid",mid);//diyue
+                        if(selectedUser.equals(username)) { //diyue
+                            map.put("me", 1);
+                        } else {
+                            map.put("me",0);
+                        }
                         list.add(map);
                     }
                 }

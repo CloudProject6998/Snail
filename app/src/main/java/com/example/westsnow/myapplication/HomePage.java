@@ -66,7 +66,6 @@ public class HomePage extends ListActivity {
     }
 
     String[] itemname ={
-            "My Profile",
             "Oguri Shun",
             "Sharon",
             "Roger Federer",
@@ -139,6 +138,8 @@ public class HomePage extends ListActivity {
                 in.putExtra("username",username);
                 in.putExtra("curlat",curLat);
                 in.putExtra("curlng",curLng);
+                in.putExtra("endLocName", endLocName);
+                in.putExtra("startLocName", startLocName);
 
 
                 // starting new activity
@@ -170,9 +171,11 @@ public class HomePage extends ListActivity {
             Log.d("home","here");
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             upIntent.putExtra("username", username);
-            upIntent.putExtra("pageName","friendList"); //Todo
+            upIntent.putExtra("pageName", "friendList"); //Todo
             upIntent.putExtra("curlat",curLat);
             upIntent.putExtra("curlng", curLng);
+            upIntent.putExtra("endLocName", endLocName);
+            upIntent.putExtra("startLocName", startLocName);
             NavUtils.navigateUpTo(this,upIntent);
 
             return true;
@@ -207,9 +210,7 @@ public class HomePage extends ListActivity {
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url, "GET", params);
 
-
-
-            if (json != null) {
+           if (json != null) {
                 // Check your log cat for JSON reponse
                 Log.d("All friends: ", json.toString());
             } else {
@@ -249,7 +250,6 @@ public class HomePage extends ListActivity {
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after getting all products
             pDialog.dismiss();
-
             if (file_url != null) {
                 if (file_url.equals("null")) {
                     Toast.makeText(HomePage.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
@@ -278,6 +278,7 @@ public class HomePage extends ListActivity {
 //                            new int[] { R.id.pid, R.id.name });
 //                    // updating listview
 //                    setListAdapter(adapter);
+
                     }
                 });
             }
@@ -312,16 +313,12 @@ public class HomePage extends ListActivity {
                 params.add(new BasicNameValuePair("follower", username));
                 Log.d("friend request!", "starting");
                 JSONObject json = jParser.makeHttpRequest(addFriendURL, "GET", params);
-
-
                 if (json != null) {
                     // checking log for json response
                     Log.d("friend request attempt", json.toString());
-                } else {
-                    //throw new SnailException(SnailException.EX_DESP_JsonNull);
-                    return "null";
+                 }else {
+                        return "null";
                 }
-
                 // success tag for json
                 success = json.getInt(TAG_SUCCESS);
                 if (success == 1) {
@@ -344,14 +341,15 @@ public class HomePage extends ListActivity {
          */
         protected void onPostExecute(String message) {
             pDialog.dismiss();
-
             if (message != null) {
+                Toast.makeText(HomePage.this, message, Toast.LENGTH_LONG).show();
                 if (message.equals("null")) {
                     Toast.makeText(HomePage.this, "Cannot connect to network!", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(HomePage.this, message, Toast.LENGTH_LONG).show();
-                }
+                Toast.makeText(HomePage.this, message, Toast.LENGTH_LONG).show();
             }
+          }
         }
+
     }
 }

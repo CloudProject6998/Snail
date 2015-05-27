@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -204,8 +206,6 @@ public class PersonalPage extends CurLocaTracker {
         getCurLocation();
         addCurMarker();
 
-
-
         final EditText startText = (EditText)findViewById(R.id.start);
         final EditText endText = (EditText)findViewById(R.id.des);
 
@@ -254,14 +254,14 @@ public class PersonalPage extends CurLocaTracker {
                     for (int i = 0; i < recommendedRoutes.size(); i++) {
                         long routeId = recommendedRoutes.get(i);
                         final List<LatLng> routePoints = route.routePoints(routeId);
-                        final JSONArray markerJsonArr  = dbUtil.getInstance().getMarkerList(routeId + "");
+                        final JSONObject markerJsonOb  = dbUtil.getInstance().getMarkerList(routeId + "");
                         if (routePoints != null) {
                             handle.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     m_drawLineType = 3;
                                     util.drawRoutes(routePoints, m_map, m_drawLineType);
-                                    addExistedMarkers(markerJsonArr);
+                                    addExistedMarkers(markerJsonOb);
                                 }
                             });
                         }
@@ -343,6 +343,8 @@ public class PersonalPage extends CurLocaTracker {
         }
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        super.username = intent.getStringExtra("username");
+        System.out.println("[super's name]"+super.username);
         pageName = intent.getStringExtra("pageName");
 
         double lat = intent.getDoubleExtra("curlat", 0);

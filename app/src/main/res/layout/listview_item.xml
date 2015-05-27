@@ -79,7 +79,8 @@
             />
 
         <LinearLayout
-            android:layout_width="80dp"
+            android:id="@+id/likeLayout"
+            android:layout_width="60dp"
             android:layout_height="40dp"
             android:orientation="horizontal"
             android:layout_alignParentRight="true"
@@ -95,7 +96,7 @@
 
             <TextView
                 android:id="@+id/likesNum"
-                android:layout_width="40dp"
+                android:layout_width="20dp"
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
                 android:text="7"
@@ -103,7 +104,13 @@
 
 
         </LinearLayout>
-
+        <ImageView
+            android:id="@+id/deleteBin"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/likeLayout"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/bin"/>
 
     </RelativeLayout>
 

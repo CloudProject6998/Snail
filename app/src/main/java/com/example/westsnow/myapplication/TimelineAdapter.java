@@ -1,7 +1,9 @@
 package com.example.westsnow.myapplication;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.westsnow.util.dbUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -67,12 +71,111 @@ public class TimelineAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         System.out.println(n++);
         if (convertView == null) {
             inflater = LayoutInflater.from(parent.getContext());
             convertView = inflater.inflate(R.layout.listview_item, null);
+            ImageView likesButton = (ImageView) convertView.findViewById(R.id.zan);
+            likesButton.setClickable(true);
+            likesButton.setFocusable(true);
+            likesButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    View pv = (View) v.getParent();
+                    TextView ltv = (TextView) pv.findViewById(R.id.likesNum);
+                    String text = ltv.getText().toString();
+                    Log.d("likeNum",text);
+                    int num = Integer.valueOf(text);
+                    String tag = ltv.getTag().toString();
+                    try {
+                        JSONObject obj = new JSONObject(tag);
+                        int click = obj.getInt("click");
+                        int pos = obj.getInt("pos");
+                        String mid = list.get(Integer.valueOf(pos)).get("mid").toString();
+                        String clickStr = String.valueOf(click);
+                        Log.d("mid",mid);
+                        Log.d("click",clickStr);
+                        if (click == 0) {
+                            num += 1;
+                            ltv.setText(String.valueOf(num));
+                            Map<String, Object> myMap = new HashMap<String, Object>();
+                            myMap.put("click", 1);
+                            myMap.put("pos", pos);
+                            ltv.setTag(myMap);
+
+                        } else {
+                            num -= 1;
+                            ltv.setText(String.valueOf(num));
+                            Map<String, Object> myMap = new HashMap<String, Object>();
+                            myMap.put("click", 0);
+                            myMap.put("pos", pos);
+                            ltv.setTag(myMap);
+                        }
+                        dbUtil db = dbUtil.getInstance();
+                        db.addLikes(mid,clickStr);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            });
+
+            //Add delete function
+            ImageView deleteButton = (ImageView) convertView.findViewById(R.id.deleteBin);
+            //hidden rubbish bin if necessary
+            String flag = list.get(position).get("me").toString();
+            if (flag.equals("0"))
+                deleteButton.setVisibility(View.GONE);
+            deleteButton.setClickable(true);
+            deleteButton.setFocusable(true);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                private int pos = position;
+                private String mid;
+                @Override
+                public void onClick(View v) {
+
+                    View pv = (View) v.getParent();
+                    mid = list.get(Integer.valueOf(pos)).get("mid").toString();
+                    Log.d("binPos",String.valueOf(pos));
+                    Log.d("bin","here");
+                    Log.d("binMid",mid);
+                    /*
+                    list.remove(pos);
+                    notifyDataSetChanged();
+                    dbUtil db = dbUtil.getInstance();
+                    db.deleteMoment(mid);
+                    */
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Delete Entry");
+                    builder.setMessage("Are you sure to delete?");
+                    builder.setPositiveButton("delete",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Log.d("ok","here");
+                            list.remove(pos);
+                            notifyDataSetChanged();
+                            dbUtil db = dbUtil.getInstance();
+                            db.deleteMoment(mid);
+                        }
+                    });
+                    builder.setNegativeButton("cancel",new AlertDialog.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Log.d("cancel","here");
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+
+                }
+            });
+
+
+
+
             viewHolder = new ViewHolder();
 
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
