@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.app.Activity;
 
+import com.example.westsnow.util.SnailException;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -158,7 +160,17 @@ public class SendText extends Activity {
                 } else {
                     return json.getString(TAG_MESSAGE) + "~";
                 }
-            } catch (JSONException e) {
+            }catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
+            }catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
@@ -176,6 +188,14 @@ public class SendText extends Activity {
                     Toast.makeText(SendText.this, message, Toast.LENGTH_LONG).show();
                 }
             }
+        }
+
+        public void showToast(final String toast) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(SendText.this, toast, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

@@ -164,7 +164,17 @@ public class MainActivity extends ActionBarActivity {
                 } else {
                     return json.getString(TAG_MESSAGE) + "~";
                 }
-            } catch (JSONException e) {
+            } catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
+            }catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
@@ -182,6 +192,14 @@ public class MainActivity extends ActionBarActivity {
                     Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
                 }
             }
+        }
+
+        public void showToast(final String toast) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

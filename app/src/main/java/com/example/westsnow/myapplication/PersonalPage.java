@@ -1,7 +1,6 @@
 package com.example.westsnow.myapplication;
 import com.example.westsnow.util.*;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.widget.PopupMenu;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.util.Log;
+import android.app.ProgressDialog;
 
 import com.example.westsnow.util.Route;
 import com.google.android.gms.maps.*;
@@ -197,7 +197,8 @@ public class PersonalPage extends CurLocaTracker {
 
         // todo: stop tracking manually
         LocaChangeTracker.m_forceTrack = true;
-        dbUtil.getInstance().updateDes(CurLocaTracker.routeID+"", m_LastLocation.getLatitude()+"", m_LastLocation.getLongitude()+"");
+        CurLocaTracker.m_endLocation = new LatLng(m_LastLocation.getLatitude(),m_LastLocation.getLongitude());
+        dbUtil.getInstance().updateDes(CurLocaTracker.routeID + "", m_LastLocation.getLatitude() + "", m_LastLocation.getLongitude() + "");
     }
 
     public void GetRouteValue(View view) {
@@ -258,9 +259,12 @@ public class PersonalPage extends CurLocaTracker {
                 });
                 Route route = new Route();
                 double[] startEndLocs = GeoCodeRequester.getInstance().getStartEndLocation(context, startPosName, endPosName, m_LastLocation);
+
+                //db = dbUtil.getInstance();
+                //MapUtil.storeUsefulRoutes(routes,db,startEndLocs, route, username); // /store useful routes
+
                 List<Long> recommendedRoutes = route.recommendRoutes(startEndLocs[0], startEndLocs[1], startEndLocs[2], startEndLocs[3]);
                 int count = 0;
-
                 if (recommendedRoutes != null) {
                     for (int i = 0; i < recommendedRoutes.size(); i++) {
                         long routeId = recommendedRoutes.get(i);
@@ -273,6 +277,9 @@ public class PersonalPage extends CurLocaTracker {
                                     m_drawLineType = 3;
                                     util.drawRoutes(routePoints, m_map, m_drawLineType);
                                     addExistedMarkers(markerJsonOb);
+                                    addStartEndMarker(routePoints.get(routePoints.size() - 1), "e");
+                                    addStartEndMarker(routePoints.get(0), "s");
+
                                 }
                             });
                         }
@@ -295,7 +302,6 @@ public class PersonalPage extends CurLocaTracker {
                 GeoCodeRequester.getInstance().getStartEndLocation(context,startPosName,endPosName,m_LastLocation);
             }catch (ExecutionException e) {
                 e.printStackTrace();
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run()
@@ -305,21 +311,17 @@ public class PersonalPage extends CurLocaTracker {
                 });
             }catch (InterruptedException e) {
                 e.printStackTrace();
-
                 runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         pDialog.dismiss();
                     }
                 });
             }catch(JSONException e){
                 e.printStackTrace();
-
                 runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         pDialog.dismiss();
                     }
                 });
@@ -327,11 +329,9 @@ public class PersonalPage extends CurLocaTracker {
                 if (e.getExDesp().equals(SnailException.EX_DESP_PathNotExist)) {
                     System.out.println("Path not exist");
                     showToast("No path exists! Please re-search!");
-
                     runOnUiThread(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             pDialog.dismiss();
                         }
                     });
@@ -341,8 +341,7 @@ public class PersonalPage extends CurLocaTracker {
 
                     runOnUiThread(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             pDialog.dismiss();
                         }
                     });
@@ -350,9 +349,6 @@ public class PersonalPage extends CurLocaTracker {
             }
             }
         }).start();
-
-
-
         if (!endValue.equals("")) {
         // set the buttons visible
             View b = findViewById(R.id.buttons);

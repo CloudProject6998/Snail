@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -65,9 +66,7 @@ public class Register extends ActionBarActivity {
         Password=(EditText)findViewById(R.id.password);
         PasswordConfirm = (EditText)findViewById(R.id.passwordconfirm);
 
-        LocaChangeTracker.m_trackerroutes = new ArrayList<LatLng>();
-        MapUtil.m_googleRoutes = new ArrayList<LatLng>();
-        CurLocaTracker.m_MomentMarkerOptions = new ArrayList<MarkerOptions>();
+        MapUtil.clearStoredMarkerRoutes();
 
     }
 
@@ -145,6 +144,16 @@ public class Register extends ActionBarActivity {
                 } else {
                     return json.getString(TAG_MESSAGE) + "~";
                 }
+            }catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -165,6 +174,14 @@ public class Register extends ActionBarActivity {
                         Toast.makeText(Register.this, message, Toast.LENGTH_LONG).show();
                 }
             }
+        }
+
+        public void showToast(final String toast) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(Register.this, toast, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

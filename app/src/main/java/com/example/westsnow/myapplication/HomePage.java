@@ -32,6 +32,7 @@ import android.widget.SimpleAdapter;
 
 import com.example.westsnow.util.CurLocaTracker;
 import com.example.westsnow.util.MapUtil;
+import com.example.westsnow.util.SnailException;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -207,20 +208,20 @@ public class HomePage extends ListActivity {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("email", username));
-
-            // getting JSON string from URL
-            JSONObject json = jParser.makeHttpRequest(url, "GET", params);
-
-           if (json != null) {
-                // Check your log cat for JSON reponse
-                Log.d("All friends: ", json.toString());
-            } else {
-                //throw new SnailException(SnailException.EX_DESP_JsonNull);
-                return "null";
-            }
-
-            following.add(username);
             try {
+            // getting JSON string from URL
+                JSONObject json = jParser.makeHttpRequest(url, "GET", params);
+
+               if (json != null) {
+                    // Check your log cat for JSON reponse
+                    Log.d("All friends: ", json.toString());
+                } else {
+                    //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                    return "null";
+                }
+
+                following.add(username);
+
                 // Checking for SUCCESS TAG
                 int success = json.getInt(TAG_SUCCESS);
 
@@ -238,7 +239,17 @@ public class HomePage extends ListActivity {
                         following.add(id);
                     }
                 }
-            } catch (JSONException e) {
+            }catch(SnailException e){
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
+            } catch(JSONException e) {
                 e.printStackTrace();
             }
 
@@ -284,9 +295,7 @@ public class HomePage extends ListActivity {
                 });
             }
         }
-
     }
-
 
     class AddFriend extends AsyncTask<String, String, String> {
         /**
@@ -331,7 +340,18 @@ public class HomePage extends ListActivity {
                     Log.d("add friend failed", json.toString());
                     return json.getString(TAG_MESSAGE) + "~";
                 }
-            } catch (JSONException e) {
+            }catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
+            }
+            catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
@@ -352,5 +372,13 @@ public class HomePage extends ListActivity {
           }
         }
 
+    }
+
+    public void showToast(final String toast) {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(HomePage.this, toast, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

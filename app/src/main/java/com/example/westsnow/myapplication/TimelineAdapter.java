@@ -73,7 +73,6 @@ public class TimelineAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
-
         System.out.println(n++);
         if (convertView == null) {
             inflater = LayoutInflater.from(parent.getContext());

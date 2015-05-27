@@ -20,6 +20,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.westsnow.util.SnailException;
 import com.example.westsnow.util.dbUtil;
 
 import org.apache.http.NameValuePair;
@@ -143,19 +144,17 @@ public class TimeLine extends ListActivity {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("email", selectedUser));
-
-            // getting JSON string from URL
-            JSONObject json = jParser.makeHttpRequest(url, "GET", params);
-
-            if (json != null) {
-            // Check your log cat for JSON reponse
-            Log.d("All moments: ", json.toString());
-            } else {
-            //throw new SnailException(SnailException.EX_DESP_JsonNull);
-                return "null";
-            }
-
             try {
+                // getting JSON string from URL
+                JSONObject json = jParser.makeHttpRequest(url, "GET", params);
+
+                if (json != null) {
+                // Check your log cat for JSON reponse
+                Log.d("All moments: ", json.toString());
+                } else {
+                //throw new SnailException(SnailException.EX_DESP_JsonNull);
+                    return "null";
+                }
                 // Checking for SUCCESS TAG
                 int success = json.getInt(TAG_SUCCESS);
 
@@ -188,7 +187,17 @@ public class TimeLine extends ListActivity {
                         list.add(map);
                     }
                 }
-            } catch (JSONException e) {
+            } catch(SnailException e) {
+                if (e.getExDesp().equals(SnailException.EX_DESP_NoInternet)) {
+                    showToast("No Internet! Please connect internet!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pDialog.dismiss();
+                        }
+                    });
+                }
+            }catch (JSONException e) {
                 e.printStackTrace();
             }
 
@@ -220,6 +229,13 @@ public class TimeLine extends ListActivity {
                     }
                 });
             }
+        }
+        public void showToast(final String toast) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(TimeLine.this, toast, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }
