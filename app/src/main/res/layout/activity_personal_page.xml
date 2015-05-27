@@ -117,8 +117,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/shape_red"
             android:onClick="stopTrack"
-            android:layout_toLeftOf="@+id/sendButton"
-            android:visibility="gone"/>
+            android:layout_toLeftOf="@+id/sendButton" />
 
         <Button
             android:id="@+id/sendButton"
